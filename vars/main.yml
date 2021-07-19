@@ -1,2 +1,2 @@
 ---
-# vars file for ansible-role-rhel7-cis
+# defaults file for rhel7_cis
