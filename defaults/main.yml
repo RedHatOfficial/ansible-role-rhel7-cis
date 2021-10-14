@@ -6,6 +6,7 @@ var_password_pam_remember: '5'
 var_password_pam_remember_control_flag: required
 var_password_pam_minclass: '4'
 var_password_pam_minlen: '14'
+var_account_disable_post_pw_expiration: '30'
 var_accounts_maximum_age_login_defs: '365'
 var_accounts_minimum_age_login_defs: '1'
 var_accounts_password_warn_age_login_defs: '7'
@@ -21,12 +22,14 @@ sysctl_net_ipv6_conf_all_accept_redirects_value: '0'
 sysctl_net_ipv6_conf_all_accept_source_route_value: '0'
 sysctl_net_ipv6_conf_all_forwarding_value: '0'
 sysctl_net_ipv6_conf_default_accept_ra_value: '0'
+sysctl_net_ipv6_conf_default_accept_redirects_value: '0'
 sysctl_net_ipv6_conf_default_accept_source_route_value: '0'
 sysctl_net_ipv4_conf_all_accept_redirects_value: '0'
 sysctl_net_ipv4_conf_all_accept_source_route_value: '0'
 sysctl_net_ipv4_conf_all_log_martians_value: '1'
 sysctl_net_ipv4_conf_all_rp_filter_value: '1'
 sysctl_net_ipv4_conf_all_secure_redirects_value: '0'
+sysctl_net_ipv4_conf_default_accept_redirects_value: '0'
 sysctl_net_ipv4_conf_default_accept_source_route_value: '0'
 sysctl_net_ipv4_conf_default_log_martians_value: '1'
 sysctl_net_ipv4_conf_default_rp_filter_value: '1'
@@ -46,6 +49,7 @@ var_sshd_max_sessions: '10'
 var_sshd_set_maxstartups: 10:30:60
 sshd_approved_ciphers: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,aes128-cbc,aes192-cbc,aes256-cbc,blowfish-cbc,cast128-cbc,3des-cbc
 sshd_approved_macs: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1,hmac-sha1-etm@openssh.com
+account_disable_post_pw_expiration: true
 accounts_maximum_age_login_defs: true
 accounts_minimum_age_login_defs: true
 accounts_no_uid_except_zero: true
@@ -282,6 +286,7 @@ sysctl_net_ipv4_conf_all_log_martians: true
 sysctl_net_ipv4_conf_all_rp_filter: true
 sysctl_net_ipv4_conf_all_secure_redirects: true
 sysctl_net_ipv4_conf_all_send_redirects: true
+sysctl_net_ipv4_conf_default_accept_redirects: true
 sysctl_net_ipv4_conf_default_accept_source_route: true
 sysctl_net_ipv4_conf_default_log_martians: true
 sysctl_net_ipv4_conf_default_rp_filter: true
@@ -296,6 +301,7 @@ sysctl_net_ipv6_conf_all_accept_redirects: true
 sysctl_net_ipv6_conf_all_accept_source_route: true
 sysctl_net_ipv6_conf_all_forwarding: true
 sysctl_net_ipv6_conf_default_accept_ra: true
+sysctl_net_ipv6_conf_default_accept_redirects: true
 sysctl_net_ipv6_conf_default_accept_source_route: true
 unknown_severity: true
 unknown_strategy: true
