@@ -1,7 +1,7 @@
 ---
 # defaults file for rhel7_cis
 var_sudo_logfile: /var/log/sudo.log
-login_banner_text: ^\-\-[\s\n]+WARNING[\s\n]+\-\-[\s\n]+This[\s\n]+system[\s\n]+is[\s\n]+for[\s\n]+the[\s\n]+use[\s\n]+of[\s\n]+authorized[\s\n]+users[\s\n]+only\.[\s\n]+Individuals[\s\n]+using[\s\n]+this[\s\n]+computer[\s\n]+system[\s\n]+without[\s\n]+authority[\s\n]+or[\s\n]+in[\s\n]+excess[\s\n]+of[\s\n]+their[\s\n]+authority[\s\n]+are[\s\n]+subject[\s\n]+to[\s\n]+having[\s\n]+all[\s\n]+their[\s\n]+activities[\s\n]+on[\s\n]+this[\s\n]+system[\s\n]+monitored[\s\n]+and[\s\n]+recorded[\s\n]+by[\s\n]+system[\s\n]+personnel\.[\s\n]+Anyone[\s\n]+using[\s\n]+this[\s\n]+system[\s\n]+expressly[\s\n]+consents[\s\n]+to[\s\n]+such[\s\n]+monitoring[\s\n]+and[\s\n]+is[\s\n]+advised[\s\n]+that[\s\n]+if[\s\n]+such[\s\n]+monitoring[\s\n]+reveals[\s\n]+possible[\s\n]+evidence[\s\n]+of[\s\n]+criminal[\s\n]+activity[\s\n]+system[\s\n]+personal[\s\n]+may[\s\n]+provide[\s\n]+the[\s\n]+evidence[\s\n]+of[\s\n]+such[\s\n]+monitoring[\s\n]+to[\s\n]+law[\s\n]+enforcement[\s\n]+officials\.$
+login_banner_text: ^(Authorized[\s\n]+uses[\s\n]+only\.[\s\n]+All[\s\n]+activity[\s\n]+may[\s\n]+be[\s\n]+monitored[\s\n]+and[\s\n]+reported\.|^(?!.*(\\|fedora|rhel|sle|ubuntu)).*)$
 var_password_pam_remember: '5'
 var_password_pam_remember_control_flag: required
 var_password_pam_minclass: '4'
@@ -17,6 +17,7 @@ var_auditd_admin_space_left_action: halt
 var_auditd_max_log_file: '6'
 var_auditd_max_log_file_action: keep_logs
 var_auditd_space_left_action: email
+rsyslog_remote_loghost_address: logcollector
 sysctl_net_ipv6_conf_all_accept_ra_value: '0'
 sysctl_net_ipv6_conf_all_accept_redirects_value: '0'
 sysctl_net_ipv6_conf_all_accept_source_route_value: '0'
@@ -44,6 +45,7 @@ var_postfix_inet_interfaces: loopback-only
 var_multiple_time_servers: 0.rhel.pool.ntp.org,1.rhel.pool.ntp.org,2.rhel.pool.ntp.org,3.rhel.pool.ntp.org
 sshd_idle_timeout_value: '900'
 var_sshd_set_keepalive: '0'
+var_sshd_set_login_grace_time: '60'
 sshd_max_auth_tries_value: '4'
 var_sshd_max_sessions: '10'
 var_sshd_set_maxstartups: 10:30:60
@@ -126,12 +128,12 @@ dconf_gnome_disable_user_list: true
 dconf_gnome_login_banner_text: true
 dir_perms_world_writable_sticky_bits: true
 disable_host_auth: true
-disable_prelink: true
 disable_strategy: true
 disable_users_coredumps: true
 enable_strategy: true
 ensure_gpgcheck_globally_activated: true
 ensure_gpgcheck_never_disabled: true
+file_cron_deny_not_exist: true
 file_groupowner_backup_etc_group: true
 file_groupowner_backup_etc_gshadow: true
 file_groupowner_backup_etc_passwd: true
@@ -176,6 +178,7 @@ file_permissions_backup_etc_group: true
 file_permissions_backup_etc_gshadow: true
 file_permissions_backup_etc_passwd: true
 file_permissions_backup_etc_shadow: true
+file_permissions_cron_allow: true
 file_permissions_cron_d: true
 file_permissions_cron_daily: true
 file_permissions_cron_hourly: true
@@ -198,6 +201,9 @@ grub2_audit_backlog_limit_argument: true
 grub2_enable_selinux: true
 high_disruption: true
 high_severity: true
+journald_compress: true
+journald_forward_to_syslog: true
+journald_storage: true
 kernel_module_cramfs_disabled: true
 kernel_module_dccp_disabled: true
 kernel_module_sctp_disabled: true
@@ -225,6 +231,7 @@ mount_option_var_tmp_nosuid: true
 no_reboot_needed: true
 ntpd_configure_restrictions: true
 ntpd_run_as_ntp_user: true
+ntpd_specify_remote_server: true
 package_aide_installed: true
 package_audit_installed: true
 package_bind_removed: true
@@ -252,6 +259,7 @@ reboot_required: true
 require_emergency_target_auth: true
 require_singleuser_auth: true
 restrict_strategy: true
+rsyslog_remote_loghost: true
 selinux_policytype: true
 selinux_state: true
 service_auditd_enabled: true
@@ -268,8 +276,10 @@ sshd_disable_root_login: true
 sshd_disable_tcp_forwarding: true
 sshd_disable_x11_forwarding: true
 sshd_do_not_permit_user_env: true
+sshd_enable_pam: true
 sshd_set_idle_timeout: true
 sshd_set_keepalive: true
+sshd_set_login_grace_time: true
 sshd_set_loglevel_verbose: true
 sshd_set_max_auth_tries: true
 sshd_set_max_sessions: true
