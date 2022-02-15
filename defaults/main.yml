@@ -65,6 +65,7 @@ accounts_tmout: true
 accounts_umask_etc_bashrc: true
 accounts_umask_etc_login_defs: true
 accounts_umask_etc_profile: true
+accounts_user_interactive_home_directory_exists: true
 aide_build_database: true
 aide_periodic_cron_checking: true
 audit_rules_dac_modification_chmod: true
@@ -133,6 +134,7 @@ disable_users_coredumps: true
 enable_strategy: true
 ensure_gpgcheck_globally_activated: true
 ensure_gpgcheck_never_disabled: true
+file_at_deny_not_exist: true
 file_cron_deny_not_exist: true
 file_groupowner_backup_etc_group: true
 file_groupowner_backup_etc_gshadow: true
@@ -174,6 +176,7 @@ file_owner_etc_passwd: true
 file_owner_etc_shadow: true
 file_owner_grub2_cfg: true
 file_owner_sshd_config: true
+file_ownership_home_directories: true
 file_permissions_backup_etc_group: true
 file_permissions_backup_etc_gshadow: true
 file_permissions_backup_etc_passwd: true
@@ -193,6 +196,7 @@ file_permissions_etc_motd: true
 file_permissions_etc_passwd: true
 file_permissions_etc_shadow: true
 file_permissions_grub2_cfg: true
+file_permissions_home_directories: true
 file_permissions_sshd_config: true
 file_permissions_sshd_pub_key: true
 gnome_gdm_disable_xdmcp: true
@@ -229,6 +233,7 @@ mount_option_var_tmp_nodev: true
 mount_option_var_tmp_noexec: true
 mount_option_var_tmp_nosuid: true
 no_reboot_needed: true
+no_rsh_trust_files: true
 ntpd_configure_restrictions: true
 ntpd_run_as_ntp_user: true
 ntpd_specify_remote_server: true
