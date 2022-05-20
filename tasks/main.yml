@@ -13,6 +13,7 @@
   tags:
   - CCE-27096-7
   - CJIS-5.10.1.3
+  - DISA-STIG-RHEL-07-020029
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-11.5
   - enable_strategy
@@ -869,10 +870,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: Ensure permission 0644 on /etc/issue
+- name: Ensure permission u-xs,g-xws,o-xwt on /etc/issue
   file:
     path: /etc/issue
-    mode: '0644'
+    mode: u-xs,g-xws,o-xwt
   when:
   - configure_strategy | bool
   - file_permissions_etc_issue | bool
@@ -910,10 +911,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: Ensure permission 0644 on /etc/motd
+- name: Ensure permission u-xs,g-xws,o-xwt on /etc/motd
   file:
     path: /etc/motd
-    mode: '0644'
+    mode: u-xs,g-xws,o-xwt
   when:
   - configure_strategy | bool
   - file_permissions_etc_motd | bool
@@ -3075,7 +3076,7 @@
   - reboot_required
   - restrict_strategy
 
-- name: Update bootloader menu
+- name: Update grub defaults and the bootloader menu
   command: /sbin/grubby --update-kernel=ALL --args="audit=1"
   when:
   - grub2_audit_argument | bool
@@ -3111,15 +3112,15 @@
   - NIST-800-53-CM-6(a)
   - grub2_audit_backlog_limit_argument
   - low_disruption
+  - low_severity
   - medium_complexity
-  - medium_severity
   - reboot_required
   - restrict_strategy
   when:
   - grub2_audit_backlog_limit_argument | bool
   - low_disruption | bool
+  - low_severity | bool
   - medium_complexity | bool
-  - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
 
@@ -3130,8 +3131,8 @@
   when:
   - grub2_audit_backlog_limit_argument | bool
   - low_disruption | bool
+  - low_severity | bool
   - medium_complexity | bool
-  - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -3141,8 +3142,8 @@
   - NIST-800-53-CM-6(a)
   - grub2_audit_backlog_limit_argument
   - low_disruption
+  - low_severity
   - medium_complexity
-  - medium_severity
   - reboot_required
   - restrict_strategy
 
@@ -3154,8 +3155,8 @@
   when:
   - grub2_audit_backlog_limit_argument | bool
   - low_disruption | bool
+  - low_severity | bool
   - medium_complexity | bool
-  - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -3166,8 +3167,8 @@
   - NIST-800-53-CM-6(a)
   - grub2_audit_backlog_limit_argument
   - low_disruption
+  - low_severity
   - medium_complexity
-  - medium_severity
   - reboot_required
   - restrict_strategy
 
@@ -3179,8 +3180,8 @@
   when:
   - grub2_audit_backlog_limit_argument | bool
   - low_disruption | bool
+  - low_severity | bool
   - medium_complexity | bool
-  - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -3191,18 +3192,18 @@
   - NIST-800-53-CM-6(a)
   - grub2_audit_backlog_limit_argument
   - low_disruption
+  - low_severity
   - medium_complexity
-  - medium_severity
   - reboot_required
   - restrict_strategy
 
-- name: Update bootloader menu
+- name: Update grub defaults and the bootloader menu
   command: /sbin/grubby --update-kernel=ALL --args="audit_backlog_limit=8192"
   when:
   - grub2_audit_backlog_limit_argument | bool
   - low_disruption | bool
+  - low_severity | bool
   - medium_complexity | bool
-  - medium_severity | bool
   - reboot_required | bool
   - restrict_strategy | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -3212,8 +3213,8 @@
   - NIST-800-53-CM-6(a)
   - grub2_audit_backlog_limit_argument
   - low_disruption
+  - low_severity
   - medium_complexity
-  - medium_severity
   - reboot_required
   - restrict_strategy
 
@@ -7570,7 +7571,7 @@
   tags:
   - CCE-27393-8
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030420
+  - DISA-STIG-RHEL-07-030410
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7604,7 +7605,7 @@
   tags:
   - CCE-27393-8
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030420
+  - DISA-STIG-RHEL-07-030410
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7723,7 +7724,7 @@
   tags:
   - CCE-27393-8
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030420
+  - DISA-STIG-RHEL-07-030410
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7843,7 +7844,7 @@
   tags:
   - CCE-27393-8
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030420
+  - DISA-STIG-RHEL-07-030410
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7862,7 +7863,7 @@
   tags:
   - CCE-27388-8
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030430
+  - DISA-STIG-RHEL-07-030410
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -7896,7 +7897,7 @@
   tags:
   - CCE-27388-8
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030430
+  - DISA-STIG-RHEL-07-030410
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8015,7 +8016,7 @@
   tags:
   - CCE-27388-8
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030430
+  - DISA-STIG-RHEL-07-030410
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8135,7 +8136,7 @@
   tags:
   - CCE-27388-8
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030430
+  - DISA-STIG-RHEL-07-030410
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8154,7 +8155,7 @@
   tags:
   - CCE-27356-5
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030380
+  - DISA-STIG-RHEL-07-030370
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8188,7 +8189,7 @@
   tags:
   - CCE-27356-5
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030380
+  - DISA-STIG-RHEL-07-030370
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8309,7 +8310,7 @@
   tags:
   - CCE-27356-5
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030380
+  - DISA-STIG-RHEL-07-030370
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8431,7 +8432,7 @@
   tags:
   - CCE-27356-5
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030380
+  - DISA-STIG-RHEL-07-030370
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8450,7 +8451,7 @@
   tags:
   - CCE-27387-0
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030400
+  - DISA-STIG-RHEL-07-030370
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8484,7 +8485,7 @@
   tags:
   - CCE-27387-0
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030400
+  - DISA-STIG-RHEL-07-030370
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8605,7 +8606,7 @@
   tags:
   - CCE-27387-0
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030400
+  - DISA-STIG-RHEL-07-030370
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8727,7 +8728,7 @@
   tags:
   - CCE-27387-0
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030400
+  - DISA-STIG-RHEL-07-030370
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8746,7 +8747,7 @@
   tags:
   - CCE-27353-2
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030480
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8780,7 +8781,7 @@
   tags:
   - CCE-27353-2
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030480
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -8905,7 +8906,7 @@
   tags:
   - CCE-27353-2
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030480
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9031,7 +9032,7 @@
   tags:
   - CCE-27353-2
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030480
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9050,7 +9051,7 @@
   tags:
   - CCE-27389-6
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030450
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9084,7 +9085,7 @@
   tags:
   - CCE-27389-6
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030450
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9209,7 +9210,7 @@
   tags:
   - CCE-27389-6
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030450
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9335,7 +9336,7 @@
   tags:
   - CCE-27389-6
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030450
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9354,7 +9355,7 @@
   tags:
   - CCE-27083-5
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030390
+  - DISA-STIG-RHEL-07-030370
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9388,7 +9389,7 @@
   tags:
   - CCE-27083-5
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030390
+  - DISA-STIG-RHEL-07-030370
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9509,7 +9510,7 @@
   tags:
   - CCE-27083-5
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030390
+  - DISA-STIG-RHEL-07-030370
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9631,7 +9632,7 @@
   tags:
   - CCE-27083-5
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030390
+  - DISA-STIG-RHEL-07-030370
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9650,7 +9651,7 @@
   tags:
   - CCE-27410-0
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030490
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9684,7 +9685,7 @@
   tags:
   - CCE-27410-0
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030490
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9809,7 +9810,7 @@
   tags:
   - CCE-27410-0
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030490
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9935,7 +9936,7 @@
   tags:
   - CCE-27410-0
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030490
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9954,7 +9955,7 @@
   tags:
   - CCE-27280-7
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030460
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -9988,7 +9989,7 @@
   tags:
   - CCE-27280-7
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030460
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10113,7 +10114,7 @@
   tags:
   - CCE-27280-7
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030460
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10239,7 +10240,7 @@
   tags:
   - CCE-27280-7
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030460
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10258,7 +10259,7 @@
   tags:
   - CCE-27367-2
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030470
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10292,7 +10293,7 @@
   tags:
   - CCE-27367-2
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030470
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10417,7 +10418,7 @@
   tags:
   - CCE-27367-2
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030470
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10543,7 +10544,7 @@
   tags:
   - CCE-27367-2
   - CJIS-5.4.1.1
-  - DISA-STIG-RHEL-07-030470
+  - DISA-STIG-RHEL-07-030440
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10865,7 +10866,7 @@
     manager: auto
   tags:
   - CCE-80995-4
-  - DISA-STIG-RHEL-07-030880
+  - DISA-STIG-RHEL-07-030910
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -10898,7 +10899,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80995-4
-  - DISA-STIG-RHEL-07-030880
+  - DISA-STIG-RHEL-07-030910
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11020,7 +11021,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80995-4
-  - DISA-STIG-RHEL-07-030880
+  - DISA-STIG-RHEL-07-030910
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11143,7 +11144,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-80995-4
-  - DISA-STIG-RHEL-07-030880
+  - DISA-STIG-RHEL-07-030910
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11161,7 +11162,7 @@
     manager: auto
   tags:
   - CCE-80413-8
-  - DISA-STIG-RHEL-07-030890
+  - DISA-STIG-RHEL-07-030910
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11194,7 +11195,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80413-8
-  - DISA-STIG-RHEL-07-030890
+  - DISA-STIG-RHEL-07-030910
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11316,7 +11317,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80413-8
-  - DISA-STIG-RHEL-07-030890
+  - DISA-STIG-RHEL-07-030910
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11439,7 +11440,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-80413-8
-  - DISA-STIG-RHEL-07-030890
+  - DISA-STIG-RHEL-07-030910
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11753,7 +11754,7 @@
     manager: auto
   tags:
   - CCE-80662-0
-  - DISA-STIG-RHEL-07-030920
+  - DISA-STIG-RHEL-07-030910
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11786,7 +11787,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80662-0
-  - DISA-STIG-RHEL-07-030920
+  - DISA-STIG-RHEL-07-030910
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -11908,7 +11909,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80662-0
-  - DISA-STIG-RHEL-07-030920
+  - DISA-STIG-RHEL-07-030910
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12031,7 +12032,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-80662-0
-  - DISA-STIG-RHEL-07-030920
+  - DISA-STIG-RHEL-07-030910
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12049,7 +12050,7 @@
     manager: auto
   tags:
   - CCE-80385-8
-  - DISA-STIG-RHEL-07-030500
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12083,7 +12084,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80385-8
-  - DISA-STIG-RHEL-07-030500
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12210,7 +12211,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80385-8
-  - DISA-STIG-RHEL-07-030500
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12338,7 +12339,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-80385-8
-  - DISA-STIG-RHEL-07-030500
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12465,7 +12466,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80385-8
-  - DISA-STIG-RHEL-07-030500
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12593,7 +12594,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-80385-8
-  - DISA-STIG-RHEL-07-030500
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12612,7 +12613,7 @@
     manager: auto
   tags:
   - CCE-80390-8
-  - DISA-STIG-RHEL-07-030550
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12646,7 +12647,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80390-8
-  - DISA-STIG-RHEL-07-030550
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12773,7 +12774,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80390-8
-  - DISA-STIG-RHEL-07-030550
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -12901,7 +12902,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-80390-8
-  - DISA-STIG-RHEL-07-030550
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -13028,7 +13029,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80390-8
-  - DISA-STIG-RHEL-07-030550
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -13156,7 +13157,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-80390-8
-  - DISA-STIG-RHEL-07-030550
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -13738,7 +13739,7 @@
     manager: auto
   tags:
   - CCE-80387-4
-  - DISA-STIG-RHEL-07-030520
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -13772,7 +13773,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80387-4
-  - DISA-STIG-RHEL-07-030520
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -13899,7 +13900,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80387-4
-  - DISA-STIG-RHEL-07-030520
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -14027,7 +14028,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-80387-4
-  - DISA-STIG-RHEL-07-030520
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -14154,7 +14155,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80387-4
-  - DISA-STIG-RHEL-07-030520
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -14282,7 +14283,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-80387-4
-  - DISA-STIG-RHEL-07-030520
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -14301,7 +14302,7 @@
     manager: auto
   tags:
   - CCE-80389-0
-  - DISA-STIG-RHEL-07-030540
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -14335,7 +14336,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80389-0
-  - DISA-STIG-RHEL-07-030540
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -14462,7 +14463,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80389-0
-  - DISA-STIG-RHEL-07-030540
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -14590,7 +14591,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-80389-0
-  - DISA-STIG-RHEL-07-030540
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -14717,7 +14718,7 @@
   - '"audit" in ansible_facts.packages'
   tags:
   - CCE-80389-0
-  - DISA-STIG-RHEL-07-030540
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -14845,7 +14846,7 @@
   - audit_arch == "b64"
   tags:
   - CCE-80389-0
-  - DISA-STIG-RHEL-07-030540
+  - DISA-STIG-RHEL-07-030510
   - NIST-800-171-3.1.7
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
@@ -17848,10 +17849,10 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure permission 0600 on /boot/grub2/grub.cfg
+- name: Ensure permission u-xs,g-xwrs,o-xwrt on /boot/grub2/grub.cfg
   file:
     path: /boot/grub2/grub.cfg
-    mode: '0600'
+    mode: u-xs,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_grub2_cfg | bool
@@ -18003,10 +18004,10 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure permission 0700 on /boot/efi/EFI/redhat/grub.cfg
+- name: Ensure permission u-s,g-xwrs,o-xwrt on /boot/efi/EFI/redhat/grub.cfg
   file:
     path: /boot/efi/EFI/redhat/grub.cfg
-    mode: '0700'
+    mode: u-s,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_efi_grub2_cfg | bool
@@ -20365,43 +20366,8 @@
   - medium_severity
   - reboot_required
 
-- name: Gather the package facts
-  package_facts:
-    manager: auto
-  tags:
-  - CCE-27358-1
-  - DISA-STIG-RHEL-07-041010
-  - NIST-800-171-3.1.16
-  - NIST-800-53-AC-18(3)
-  - NIST-800-53-AC-18(a)
-  - NIST-800-53-CM-6(a)
-  - NIST-800-53-CM-7(a)
-  - NIST-800-53-CM-7(b)
-  - NIST-800-53-MP-7
-  - low_complexity
-  - medium_disruption
-  - medium_severity
-  - no_reboot_needed
-  - unknown_strategy
-  - wireless_disable_interfaces
-  when:
-  - low_complexity | bool
-  - medium_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - unknown_strategy | bool
-  - wireless_disable_interfaces | bool
-
 - name: Deactivate Wireless Network Interfaces
   command: nmcli radio wifi off
-  when:
-  - low_complexity | bool
-  - medium_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - unknown_strategy | bool
-  - wireless_disable_interfaces | bool
-  - '"wifi-iface" in ansible_facts.packages'
   tags:
   - CCE-27358-1
   - DISA-STIG-RHEL-07-041010
@@ -20418,6 +20384,13 @@
   - no_reboot_needed
   - unknown_strategy
   - wireless_disable_interfaces
+  when:
+  - low_complexity | bool
+  - medium_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - unknown_strategy | bool
+  - wireless_disable_interfaces | bool
 
 - name: Get all world-writable directories with no sticky bits set
   shell: 'set -o pipefail
@@ -21201,10 +21174,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: Ensure permission 0644 on /etc/group-
+- name: Ensure permission u-xs,g-xws,o-xwt on /etc/group-
   file:
     path: /etc/group-
-    mode: '0644'
+    mode: u-xs,g-xws,o-xwt
   when:
   - configure_strategy | bool
   - file_permissions_backup_etc_group | bool
@@ -21242,10 +21215,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: Ensure permission 0000 on /etc/gshadow-
+- name: Ensure permission u-xwrs,g-xwrs,o-xwrt on /etc/gshadow-
   file:
     path: /etc/gshadow-
-    mode: '0000'
+    mode: u-xwrs,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_backup_etc_gshadow | bool
@@ -21283,10 +21256,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: Ensure permission 0644 on /etc/passwd-
+- name: Ensure permission u-xs,g-xws,o-xwt on /etc/passwd-
   file:
     path: /etc/passwd-
-    mode: '0644'
+    mode: u-xs,g-xws,o-xwt
   when:
   - configure_strategy | bool
   - file_permissions_backup_etc_passwd | bool
@@ -21324,10 +21297,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: Ensure permission 0000 on /etc/shadow-
+- name: Ensure permission u-xwrs,g-xwrs,o-xwrt on /etc/shadow-
   file:
     path: /etc/shadow-
-    mode: '0000'
+    mode: u-xwrs,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_backup_etc_shadow | bool
@@ -21369,10 +21342,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: Ensure permission 0644 on /etc/group
+- name: Ensure permission u-xs,g-xws,o-xwt on /etc/group
   file:
     path: /etc/group
-    mode: '0644'
+    mode: u-xs,g-xws,o-xwt
   when:
   - configure_strategy | bool
   - file_permissions_etc_group | bool
@@ -21416,10 +21389,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: Ensure permission 0000 on /etc/gshadow
+- name: Ensure permission u-xwrs,g-xwrs,o-xwrt on /etc/gshadow
   file:
     path: /etc/gshadow
-    mode: '0000'
+    mode: u-xwrs,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_etc_gshadow | bool
@@ -21463,10 +21436,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: Ensure permission 0644 on /etc/passwd
+- name: Ensure permission u-xs,g-xws,o-xwt on /etc/passwd
   file:
     path: /etc/passwd
-    mode: '0644'
+    mode: u-xs,g-xws,o-xwt
   when:
   - configure_strategy | bool
   - file_permissions_etc_passwd | bool
@@ -21512,10 +21485,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: Ensure permission 0000 on /etc/shadow
+- name: Ensure permission u-xwrs,g-xwrs,o-xwrt on /etc/shadow
   file:
     path: /etc/shadow
-    mode: '0000'
+    mode: u-xwrs,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_etc_shadow | bool
@@ -21539,15 +21512,13 @@
 
 - name: Disable service autofs
   block:
-  - name: Gather the service facts
-    service_facts: null
   - name: Disable service autofs
     systemd:
       name: autofs.service
       enabled: 'no'
       state: stopped
       masked: 'yes'
-    when: '"autofs.service" in ansible_facts.services'
+    ignore_errors: 'yes'
   when:
   - disable_strategy | bool
   - low_complexity | bool
@@ -21741,7 +21712,7 @@
   - medium_severity
   - reboot_required
 
-- name: Check information associated to mountpoint
+- name: 'Add nodev Option to /dev/shm: Check information associated to mountpoint'
   command: findmnt  '/dev/shm'
   register: device_name
   failed_when: device_name.rc > 1
@@ -21750,7 +21721,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_nodev | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -21766,11 +21737,11 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_nodev
   - no_reboot_needed
 
-- name: Create mount_info dictionary variable
+- name: 'Add nodev Option to /dev/shm: Create mount_info dictionary variable'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -21780,7 +21751,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_nodev | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -21798,11 +21769,11 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_nodev
   - no_reboot_needed
 
-- name: If /dev/shm not mounted, craft mount_info manually
+- name: 'Add nodev Option to /dev/shm: If /dev/shm not mounted, craft mount_info manually'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -21818,7 +21789,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_nodev | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -21836,18 +21807,18 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_nodev
   - no_reboot_needed
 
-- name: Make sure nodev option is part of the to /dev/shm options
+- name: 'Add nodev Option to /dev/shm: Make sure nodev option is part of the to /dev/shm options'
   set_fact:
     mount_info: '{{ mount_info | combine( {''options'':''''~mount_info.options~'',nodev'' }) }}'
   when:
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_nodev | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -21864,11 +21835,11 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_nodev
   - no_reboot_needed
 
-- name: Ensure /dev/shm is mounted with nodev option
+- name: 'Add nodev Option to /dev/shm: Ensure /dev/shm is mounted with nodev option'
   mount:
     path: /dev/shm
     src: '{{ mount_info.source }}'
@@ -21879,7 +21850,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_nodev | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -21896,11 +21867,11 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_nodev
   - no_reboot_needed
 
-- name: Check information associated to mountpoint
+- name: 'Add noexec Option to /dev/shm: Check information associated to mountpoint'
   command: findmnt  '/dev/shm'
   register: device_name
   failed_when: device_name.rc > 1
@@ -21909,7 +21880,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_noexec | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -21925,11 +21896,11 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_noexec
   - no_reboot_needed
 
-- name: Create mount_info dictionary variable
+- name: 'Add noexec Option to /dev/shm: Create mount_info dictionary variable'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -21939,7 +21910,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_noexec | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -21957,11 +21928,11 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_noexec
   - no_reboot_needed
 
-- name: If /dev/shm not mounted, craft mount_info manually
+- name: 'Add noexec Option to /dev/shm: If /dev/shm not mounted, craft mount_info manually'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -21977,7 +21948,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_noexec | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -21995,18 +21966,18 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_noexec
   - no_reboot_needed
 
-- name: Make sure noexec option is part of the to /dev/shm options
+- name: 'Add noexec Option to /dev/shm: Make sure noexec option is part of the to /dev/shm options'
   set_fact:
     mount_info: '{{ mount_info | combine( {''options'':''''~mount_info.options~'',noexec'' }) }}'
   when:
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_noexec | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -22023,11 +21994,11 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_noexec
   - no_reboot_needed
 
-- name: Ensure /dev/shm is mounted with noexec option
+- name: 'Add noexec Option to /dev/shm: Ensure /dev/shm is mounted with noexec option'
   mount:
     path: /dev/shm
     src: '{{ mount_info.source }}'
@@ -22038,7 +22009,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_noexec | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -22055,11 +22026,11 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_noexec
   - no_reboot_needed
 
-- name: Check information associated to mountpoint
+- name: 'Add nosuid Option to /dev/shm: Check information associated to mountpoint'
   command: findmnt  '/dev/shm'
   register: device_name
   failed_when: device_name.rc > 1
@@ -22068,7 +22039,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_nosuid | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -22084,11 +22055,11 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_nosuid
   - no_reboot_needed
 
-- name: Create mount_info dictionary variable
+- name: 'Add nosuid Option to /dev/shm: Create mount_info dictionary variable'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -22098,7 +22069,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_nosuid | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -22116,11 +22087,11 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_nosuid
   - no_reboot_needed
 
-- name: If /dev/shm not mounted, craft mount_info manually
+- name: 'Add nosuid Option to /dev/shm: If /dev/shm not mounted, craft mount_info manually'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -22136,7 +22107,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_nosuid | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -22154,18 +22125,18 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_nosuid
   - no_reboot_needed
 
-- name: Make sure nosuid option is part of the to /dev/shm options
+- name: 'Add nosuid Option to /dev/shm: Make sure nosuid option is part of the to /dev/shm options'
   set_fact:
     mount_info: '{{ mount_info | combine( {''options'':''''~mount_info.options~'',nosuid'' }) }}'
   when:
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_nosuid | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -22182,11 +22153,11 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_nosuid
   - no_reboot_needed
 
-- name: Ensure /dev/shm is mounted with nosuid option
+- name: 'Add nosuid Option to /dev/shm: Ensure /dev/shm is mounted with nosuid option'
   mount:
     path: /dev/shm
     src: '{{ mount_info.source }}'
@@ -22197,7 +22168,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_dev_shm_nosuid | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -22214,11 +22185,11 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_dev_shm_nosuid
   - no_reboot_needed
 
-- name: Check information associated to mountpoint
+- name: 'Add nodev Option to /home: Check information associated to mountpoint'
   command: findmnt --fstab '/home'
   register: device_name
   failed_when: device_name.rc > 1
@@ -22240,7 +22211,7 @@
   - no_reboot_needed
   - unknown_severity
 
-- name: Create mount_info dictionary variable
+- name: 'Add nodev Option to /home: Create mount_info dictionary variable'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -22265,7 +22236,7 @@
   - no_reboot_needed
   - unknown_severity
 
-- name: If /home not mounted, craft mount_info manually
+- name: 'Add nodev Option to /home: If /home not mounted, craft mount_info manually'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -22296,7 +22267,7 @@
   - no_reboot_needed
   - unknown_severity
 
-- name: Make sure nodev option is part of the to /home options
+- name: 'Add nodev Option to /home: Make sure nodev option is part of the to /home options'
   set_fact:
     mount_info: '{{ mount_info | combine( {''options'':''''~mount_info.options~'',nodev'' }) }}'
   when:
@@ -22317,7 +22288,7 @@
   - no_reboot_needed
   - unknown_severity
 
-- name: Ensure /home is mounted with nodev option
+- name: 'Add nodev Option to /home: Ensure /home is mounted with nodev option'
   mount:
     path: /home
     src: '{{ mount_info.source }}'
@@ -22352,7 +22323,7 @@
   - configure_strategy | bool
   - high_disruption | bool
   - low_complexity | bool
-  - low_severity | bool
+  - medium_severity | bool
   - mount_option_nodev_removable_partitions | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
@@ -22367,7 +22338,7 @@
   - configure_strategy
   - high_disruption
   - low_complexity
-  - low_severity
+  - medium_severity
   - mount_option_nodev_removable_partitions
   - no_reboot_needed
 
@@ -22430,7 +22401,7 @@
   - mount_option_nosuid_removable_partitions
   - no_reboot_needed
 
-- name: Check information associated to mountpoint
+- name: 'Add nodev Option to /tmp: Check information associated to mountpoint'
   command: findmnt --fstab '/tmp'
   register: device_name
   failed_when: device_name.rc > 1
@@ -22458,7 +22429,7 @@
   - mount_option_tmp_nodev
   - no_reboot_needed
 
-- name: Create mount_info dictionary variable
+- name: 'Add nodev Option to /tmp: Create mount_info dictionary variable'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -22489,7 +22460,7 @@
   - mount_option_tmp_nodev
   - no_reboot_needed
 
-- name: If /tmp not mounted, craft mount_info manually
+- name: 'Add nodev Option to /tmp: If /tmp not mounted, craft mount_info manually'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -22526,7 +22497,7 @@
   - mount_option_tmp_nodev
   - no_reboot_needed
 
-- name: Make sure nodev option is part of the to /tmp options
+- name: 'Add nodev Option to /tmp: Make sure nodev option is part of the to /tmp options'
   set_fact:
     mount_info: '{{ mount_info | combine( {''options'':''''~mount_info.options~'',nodev'' }) }}'
   when:
@@ -22553,7 +22524,7 @@
   - mount_option_tmp_nodev
   - no_reboot_needed
 
-- name: Ensure /tmp is mounted with nodev option
+- name: 'Add nodev Option to /tmp: Ensure /tmp is mounted with nodev option'
   mount:
     path: /tmp
     src: '{{ mount_info.source }}'
@@ -22584,7 +22555,7 @@
   - mount_option_tmp_nodev
   - no_reboot_needed
 
-- name: Check information associated to mountpoint
+- name: 'Add noexec Option to /tmp: Check information associated to mountpoint'
   command: findmnt --fstab '/tmp'
   register: device_name
   failed_when: device_name.rc > 1
@@ -22612,7 +22583,7 @@
   - mount_option_tmp_noexec
   - no_reboot_needed
 
-- name: Create mount_info dictionary variable
+- name: 'Add noexec Option to /tmp: Create mount_info dictionary variable'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -22643,7 +22614,7 @@
   - mount_option_tmp_noexec
   - no_reboot_needed
 
-- name: If /tmp not mounted, craft mount_info manually
+- name: 'Add noexec Option to /tmp: If /tmp not mounted, craft mount_info manually'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -22680,7 +22651,7 @@
   - mount_option_tmp_noexec
   - no_reboot_needed
 
-- name: Make sure noexec option is part of the to /tmp options
+- name: 'Add noexec Option to /tmp: Make sure noexec option is part of the to /tmp options'
   set_fact:
     mount_info: '{{ mount_info | combine( {''options'':''''~mount_info.options~'',noexec'' }) }}'
   when:
@@ -22707,7 +22678,7 @@
   - mount_option_tmp_noexec
   - no_reboot_needed
 
-- name: Ensure /tmp is mounted with noexec option
+- name: 'Add noexec Option to /tmp: Ensure /tmp is mounted with noexec option'
   mount:
     path: /tmp
     src: '{{ mount_info.source }}'
@@ -22738,7 +22709,7 @@
   - mount_option_tmp_noexec
   - no_reboot_needed
 
-- name: Check information associated to mountpoint
+- name: 'Add nosuid Option to /tmp: Check information associated to mountpoint'
   command: findmnt --fstab '/tmp'
   register: device_name
   failed_when: device_name.rc > 1
@@ -22766,7 +22737,7 @@
   - mount_option_tmp_nosuid
   - no_reboot_needed
 
-- name: Create mount_info dictionary variable
+- name: 'Add nosuid Option to /tmp: Create mount_info dictionary variable'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -22797,7 +22768,7 @@
   - mount_option_tmp_nosuid
   - no_reboot_needed
 
-- name: If /tmp not mounted, craft mount_info manually
+- name: 'Add nosuid Option to /tmp: If /tmp not mounted, craft mount_info manually'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -22834,7 +22805,7 @@
   - mount_option_tmp_nosuid
   - no_reboot_needed
 
-- name: Make sure nosuid option is part of the to /tmp options
+- name: 'Add nosuid Option to /tmp: Make sure nosuid option is part of the to /tmp options'
   set_fact:
     mount_info: '{{ mount_info | combine( {''options'':''''~mount_info.options~'',nosuid'' }) }}'
   when:
@@ -22861,7 +22832,7 @@
   - mount_option_tmp_nosuid
   - no_reboot_needed
 
-- name: Ensure /tmp is mounted with nosuid option
+- name: 'Add nosuid Option to /tmp: Ensure /tmp is mounted with nosuid option'
   mount:
     path: /tmp
     src: '{{ mount_info.source }}'
@@ -22892,7 +22863,7 @@
   - mount_option_tmp_nosuid
   - no_reboot_needed
 
-- name: Check information associated to mountpoint
+- name: 'Add nodev Option to /var/tmp: Check information associated to mountpoint'
   command: findmnt --fstab '/var/tmp'
   register: device_name
   failed_when: device_name.rc > 1
@@ -22914,7 +22885,7 @@
   - mount_option_var_tmp_nodev
   - no_reboot_needed
 
-- name: Create mount_info dictionary variable
+- name: 'Add nodev Option to /var/tmp: Create mount_info dictionary variable'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -22939,7 +22910,7 @@
   - mount_option_var_tmp_nodev
   - no_reboot_needed
 
-- name: If /var/tmp not mounted, craft mount_info manually
+- name: 'Add nodev Option to /var/tmp: If /var/tmp not mounted, craft mount_info manually'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -22970,7 +22941,7 @@
   - mount_option_var_tmp_nodev
   - no_reboot_needed
 
-- name: Make sure nodev option is part of the to /var/tmp options
+- name: 'Add nodev Option to /var/tmp: Make sure nodev option is part of the to /var/tmp options'
   set_fact:
     mount_info: '{{ mount_info | combine( {''options'':''''~mount_info.options~'',nodev'' }) }}'
   when:
@@ -22991,7 +22962,7 @@
   - mount_option_var_tmp_nodev
   - no_reboot_needed
 
-- name: Ensure /var/tmp is mounted with nodev option
+- name: 'Add nodev Option to /var/tmp: Ensure /var/tmp is mounted with nodev option'
   mount:
     path: /var/tmp
     src: '{{ mount_info.source }}'
@@ -23016,7 +22987,7 @@
   - mount_option_var_tmp_nodev
   - no_reboot_needed
 
-- name: Check information associated to mountpoint
+- name: 'Add noexec Option to /var/tmp: Check information associated to mountpoint'
   command: findmnt --fstab '/var/tmp'
   register: device_name
   failed_when: device_name.rc > 1
@@ -23038,7 +23009,7 @@
   - mount_option_var_tmp_noexec
   - no_reboot_needed
 
-- name: Create mount_info dictionary variable
+- name: 'Add noexec Option to /var/tmp: Create mount_info dictionary variable'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -23063,7 +23034,7 @@
   - mount_option_var_tmp_noexec
   - no_reboot_needed
 
-- name: If /var/tmp not mounted, craft mount_info manually
+- name: 'Add noexec Option to /var/tmp: If /var/tmp not mounted, craft mount_info manually'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -23094,7 +23065,7 @@
   - mount_option_var_tmp_noexec
   - no_reboot_needed
 
-- name: Make sure noexec option is part of the to /var/tmp options
+- name: 'Add noexec Option to /var/tmp: Make sure noexec option is part of the to /var/tmp options'
   set_fact:
     mount_info: '{{ mount_info | combine( {''options'':''''~mount_info.options~'',noexec'' }) }}'
   when:
@@ -23115,7 +23086,7 @@
   - mount_option_var_tmp_noexec
   - no_reboot_needed
 
-- name: Ensure /var/tmp is mounted with noexec option
+- name: 'Add noexec Option to /var/tmp: Ensure /var/tmp is mounted with noexec option'
   mount:
     path: /var/tmp
     src: '{{ mount_info.source }}'
@@ -23140,7 +23111,7 @@
   - mount_option_var_tmp_noexec
   - no_reboot_needed
 
-- name: Check information associated to mountpoint
+- name: 'Add nosuid Option to /var/tmp: Check information associated to mountpoint'
   command: findmnt --fstab '/var/tmp'
   register: device_name
   failed_when: device_name.rc > 1
@@ -23162,7 +23133,7 @@
   - mount_option_var_tmp_nosuid
   - no_reboot_needed
 
-- name: Create mount_info dictionary variable
+- name: 'Add nosuid Option to /var/tmp: Create mount_info dictionary variable'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -23187,7 +23158,7 @@
   - mount_option_var_tmp_nosuid
   - no_reboot_needed
 
-- name: If /var/tmp not mounted, craft mount_info manually
+- name: 'Add nosuid Option to /var/tmp: If /var/tmp not mounted, craft mount_info manually'
   set_fact:
     mount_info: '{{ mount_info|default({})|combine({item.0: item.1}) }}'
   with_together:
@@ -23218,7 +23189,7 @@
   - mount_option_var_tmp_nosuid
   - no_reboot_needed
 
-- name: Make sure nosuid option is part of the to /var/tmp options
+- name: 'Add nosuid Option to /var/tmp: Make sure nosuid option is part of the to /var/tmp options'
   set_fact:
     mount_info: '{{ mount_info | combine( {''options'':''''~mount_info.options~'',nosuid'' }) }}'
   when:
@@ -23239,7 +23210,7 @@
   - mount_option_var_tmp_nosuid
   - no_reboot_needed
 
-- name: Ensure /var/tmp is mounted with nosuid option
+- name: 'Add nosuid Option to /var/tmp: Ensure /var/tmp is mounted with nosuid option'
   mount:
     path: /var/tmp
     src: '{{ mount_info.source }}'
@@ -23772,15 +23743,13 @@
 
 - name: Disable service avahi-daemon
   block:
-  - name: Gather the service facts
-    service_facts: null
   - name: Disable service avahi-daemon
     systemd:
       name: avahi-daemon.service
       enabled: 'no'
       state: stopped
       masked: 'yes'
-    when: '"avahi-daemon.service" in ansible_facts.services'
+    ignore_errors: 'yes'
   when:
   - disable_strategy | bool
   - low_complexity | bool
@@ -23884,10 +23853,11 @@
   - no_reboot_needed
   - service_crond_enabled
 
-- name: Test for existence /etc/cron.d/
-  stat:
+- name: Ensure group owner on /etc/cron.d/
+  file:
     path: /etc/cron.d/
-  register: file_exists
+    state: directory
+    group: '0'
   when:
   - configure_strategy | bool
   - file_groupowner_cron_d | bool
@@ -23907,34 +23877,11 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure group owner 0 on /etc/cron.d/
+- name: Ensure group owner on /etc/cron.daily/
   file:
-    path: /etc/cron.d/
-    group: '0'
-  when:
-  - configure_strategy | bool
-  - file_groupowner_cron_d | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
-  tags:
-  - CCE-82265-0
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_groupowner_cron_d
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Test for existence /etc/cron.daily/
-  stat:
     path: /etc/cron.daily/
-  register: file_exists
+    state: directory
+    group: '0'
   when:
   - configure_strategy | bool
   - file_groupowner_cron_daily | bool
@@ -23954,34 +23901,11 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure group owner 0 on /etc/cron.daily/
+- name: Ensure group owner on /etc/cron.hourly/
   file:
-    path: /etc/cron.daily/
-    group: '0'
-  when:
-  - configure_strategy | bool
-  - file_groupowner_cron_daily | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
-  tags:
-  - CCE-82232-0
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_groupowner_cron_daily
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Test for existence /etc/cron.hourly/
-  stat:
     path: /etc/cron.hourly/
-  register: file_exists
+    state: directory
+    group: '0'
   when:
   - configure_strategy | bool
   - file_groupowner_cron_hourly | bool
@@ -24001,34 +23925,11 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure group owner 0 on /etc/cron.hourly/
+- name: Ensure group owner on /etc/cron.monthly/
   file:
-    path: /etc/cron.hourly/
-    group: '0'
-  when:
-  - configure_strategy | bool
-  - file_groupowner_cron_hourly | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
-  tags:
-  - CCE-82226-2
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_groupowner_cron_hourly
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Test for existence /etc/cron.monthly/
-  stat:
     path: /etc/cron.monthly/
-  register: file_exists
+    state: directory
+    group: '0'
   when:
   - configure_strategy | bool
   - file_groupowner_cron_monthly | bool
@@ -24048,56 +23949,10 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure group owner 0 on /etc/cron.monthly/
-  file:
-    path: /etc/cron.monthly/
-    group: '0'
-  when:
-  - configure_strategy | bool
-  - file_groupowner_cron_monthly | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
-  tags:
-  - CCE-82255-1
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_groupowner_cron_monthly
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Test for existence /etc/cron.weekly/
-  stat:
-    path: /etc/cron.weekly/
-  register: file_exists
-  when:
-  - configure_strategy | bool
-  - file_groupowner_cron_weekly | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  tags:
-  - CCE-82242-9
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_groupowner_cron_weekly
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Ensure group owner 0 on /etc/cron.weekly/
+- name: Ensure group owner on /etc/cron.weekly/
   file:
     path: /etc/cron.weekly/
+    state: directory
     group: '0'
   when:
   - configure_strategy | bool
@@ -24107,7 +23962,6 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
   tags:
   - CCE-82242-9
   - NIST-800-53-AC-6(1)
@@ -24166,10 +24020,11 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Test for existence /etc/cron.d/
-  stat:
+- name: Ensure owner on directory /etc/cron.d/
+  file:
     path: /etc/cron.d/
-  register: file_exists
+    state: directory
+    owner: '0'
   when:
   - configure_strategy | bool
   - file_owner_cron_d | bool
@@ -24189,34 +24044,11 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure owner 0 on /etc/cron.d/
+- name: Ensure owner on directory /etc/cron.daily/
   file:
-    path: /etc/cron.d/
-    owner: '0'
-  when:
-  - configure_strategy | bool
-  - file_owner_cron_d | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
-  tags:
-  - CCE-82270-0
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_owner_cron_d
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Test for existence /etc/cron.daily/
-  stat:
     path: /etc/cron.daily/
-  register: file_exists
+    state: directory
+    owner: '0'
   when:
   - configure_strategy | bool
   - file_owner_cron_daily | bool
@@ -24236,34 +24068,11 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure owner 0 on /etc/cron.daily/
+- name: Ensure owner on directory /etc/cron.hourly/
   file:
-    path: /etc/cron.daily/
-    owner: '0'
-  when:
-  - configure_strategy | bool
-  - file_owner_cron_daily | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
-  tags:
-  - CCE-82236-1
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_owner_cron_daily
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Test for existence /etc/cron.hourly/
-  stat:
     path: /etc/cron.hourly/
-  register: file_exists
+    state: directory
+    owner: '0'
   when:
   - configure_strategy | bool
   - file_owner_cron_hourly | bool
@@ -24283,34 +24092,11 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure owner 0 on /etc/cron.hourly/
+- name: Ensure owner on directory /etc/cron.monthly/
   file:
-    path: /etc/cron.hourly/
-    owner: '0'
-  when:
-  - configure_strategy | bool
-  - file_owner_cron_hourly | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
-  tags:
-  - CCE-82208-0
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_owner_cron_hourly
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Test for existence /etc/cron.monthly/
-  stat:
     path: /etc/cron.monthly/
-  register: file_exists
+    state: directory
+    owner: '0'
   when:
   - configure_strategy | bool
   - file_owner_cron_monthly | bool
@@ -24330,56 +24116,10 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure owner 0 on /etc/cron.monthly/
-  file:
-    path: /etc/cron.monthly/
-    owner: '0'
-  when:
-  - configure_strategy | bool
-  - file_owner_cron_monthly | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
-  tags:
-  - CCE-82259-3
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_owner_cron_monthly
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Test for existence /etc/cron.weekly/
-  stat:
-    path: /etc/cron.weekly/
-  register: file_exists
-  when:
-  - configure_strategy | bool
-  - file_owner_cron_weekly | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  tags:
-  - CCE-82246-0
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_owner_cron_weekly
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Ensure owner 0 on /etc/cron.weekly/
+- name: Ensure owner on directory /etc/cron.weekly/
   file:
     path: /etc/cron.weekly/
+    state: directory
     owner: '0'
   when:
   - configure_strategy | bool
@@ -24389,7 +24129,6 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
   tags:
   - CCE-82246-0
   - NIST-800-53-AC-6(1)
@@ -24448,10 +24187,11 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Test for existence /etc/cron.d/
-  stat:
+- name: Set permissions for /etc/cron.d/
+  file:
     path: /etc/cron.d/
-  register: file_exists
+    state: directory
+    mode: u-s,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_cron_d | bool
@@ -24471,34 +24211,11 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure permission 0700 on /etc/cron.d/
+- name: Set permissions for /etc/cron.daily/
   file:
-    path: /etc/cron.d/
-    mode: '0700'
-  when:
-  - configure_strategy | bool
-  - file_permissions_cron_d | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
-  tags:
-  - CCE-82276-7
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_permissions_cron_d
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Test for existence /etc/cron.daily/
-  stat:
     path: /etc/cron.daily/
-  register: file_exists
+    state: directory
+    mode: u-s,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_cron_daily | bool
@@ -24518,34 +24235,11 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure permission 0700 on /etc/cron.daily/
+- name: Set permissions for /etc/cron.hourly/
   file:
-    path: /etc/cron.daily/
-    mode: '0700'
-  when:
-  - configure_strategy | bool
-  - file_permissions_cron_daily | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
-  tags:
-  - CCE-82239-5
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_permissions_cron_daily
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Test for existence /etc/cron.hourly/
-  stat:
     path: /etc/cron.hourly/
-  register: file_exists
+    state: directory
+    mode: u-s,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_cron_hourly | bool
@@ -24565,34 +24259,11 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure permission 0700 on /etc/cron.hourly/
+- name: Set permissions for /etc/cron.monthly/
   file:
-    path: /etc/cron.hourly/
-    mode: '0700'
-  when:
-  - configure_strategy | bool
-  - file_permissions_cron_hourly | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
-  tags:
-  - CCE-82229-6
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_permissions_cron_hourly
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Test for existence /etc/cron.monthly/
-  stat:
     path: /etc/cron.monthly/
-  register: file_exists
+    state: directory
+    mode: u-s,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_cron_monthly | bool
@@ -24612,34 +24283,11 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure permission 0700 on /etc/cron.monthly/
+- name: Set permissions for /etc/cron.weekly/
   file:
-    path: /etc/cron.monthly/
-    mode: '0700'
-  when:
-  - configure_strategy | bool
-  - file_permissions_cron_monthly | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
-  tags:
-  - CCE-82262-7
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_permissions_cron_monthly
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Test for existence /etc/cron.weekly/
-  stat:
     path: /etc/cron.weekly/
-  register: file_exists
+    state: directory
+    mode: u-s,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_cron_weekly | bool
@@ -24648,30 +24296,6 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  tags:
-  - CCE-82250-2
-  - NIST-800-53-AC-6(1)
-  - NIST-800-53-CM-6(a)
-  - configure_strategy
-  - file_permissions_cron_weekly
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-
-- name: Ensure permission 0700 on /etc/cron.weekly/
-  file:
-    path: /etc/cron.weekly/
-    mode: '0700'
-  when:
-  - configure_strategy | bool
-  - file_permissions_cron_weekly | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - file_exists.stat is defined and file_exists.stat.exists
   tags:
   - CCE-82250-2
   - NIST-800-53-AC-6(1)
@@ -24706,10 +24330,10 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure permission 0600 on /etc/crontab
+- name: Ensure permission u-xs,g-xwrs,o-xwrt on /etc/crontab
   file:
     path: /etc/crontab
-    mode: '0600'
+    mode: u-xs,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_crontab | bool
@@ -24891,10 +24515,10 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure permission 0600 on /etc/cron.allow
+- name: Ensure permission u-xs,g-xwrs,o-xwrt on /etc/cron.allow
   file:
     path: /etc/cron.allow
-    mode: '0600'
+    mode: u-xs,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_cron_allow | bool
@@ -25145,15 +24769,13 @@
 
 - name: Disable service rpcbind
   block:
-  - name: Gather the service facts
-    service_facts: null
   - name: Disable service rpcbind
     systemd:
       name: rpcbind.service
       enabled: 'no'
       state: stopped
       masked: 'yes'
-    when: '"rpcbind.service" in ansible_facts.services'
+    ignore_errors: 'yes'
   when:
   - disable_strategy | bool
   - low_complexity | bool
@@ -25717,15 +25339,13 @@
 
 - name: Disable service rsyncd
   block:
-  - name: Gather the service facts
-    service_facts: null
   - name: Disable service rsyncd
     systemd:
       name: rsyncd.service
       enabled: 'no'
       state: stopped
       masked: 'yes'
-    when: '"rsyncd.service" in ansible_facts.services'
+    ignore_errors: 'yes'
   when:
   - disable_strategy | bool
   - low_complexity | bool
@@ -26168,10 +25788,10 @@
   - medium_severity
   - no_reboot_needed
 
-- name: Ensure permission 0600 on /etc/ssh/sshd_config
+- name: Ensure permission u-xs,g-xwrs,o-xwrt on /etc/ssh/sshd_config
   file:
     path: /etc/ssh/sshd_config
-    mode: '0600'
+    mode: u-xs,g-xwrs,o-xwrt
   when:
   - configure_strategy | bool
   - file_permissions_sshd_config | bool
@@ -26194,11 +25814,11 @@
   - no_reboot_needed
 
 - name: Find /etc/ssh/ file(s)
-  find:
-    paths: /etc/ssh/
-    patterns: ^.*.pub$
-    use_regex: true
+  command: find -H /etc/ssh/ -maxdepth 1 -perm /u+xs,g+xws,o+xwt -type f -regex "^.*.pub$"
   register: files_found
+  changed_when: false
+  failed_when: false
+  check_mode: false
   when:
   - configure_strategy | bool
   - file_permissions_sshd_pub_key | bool
@@ -26224,10 +25844,11 @@
 
 - name: Set permissions for /etc/ssh/ file(s)
   file:
-    path: '{{ item.path }}'
-    mode: '0644'
+    path: '{{ item }}'
+    mode: u-xs,g-xws,o-xwt
+    state: file
   with_items:
-  - '{{ files_found.files }}'
+  - '{{ files_found.stdout_lines }}'
   when:
   - configure_strategy | bool
   - file_permissions_sshd_pub_key | bool
@@ -26250,6 +25871,114 @@
   - low_disruption
   - medium_severity
   - no_reboot_needed
+
+- name: Set SSH Client Alive Count Max
+  block:
+  - name: Check for duplicate values
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      create: false
+      regexp: (?i)^\s*ClientAliveCountMax\s+
+      state: absent
+    check_mode: true
+    changed_when: false
+    register: dupes
+  - name: Deduplicate values from /etc/ssh/sshd_config
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      create: false
+      regexp: (?i)^\s*ClientAliveCountMax\s+
+      state: absent
+    when: dupes.found is defined and dupes.found > 1
+  - name: Insert correct line to /etc/ssh/sshd_config
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      create: true
+      regexp: (?i)^\s*ClientAliveCountMax\s+
+      line: ClientAliveCountMax {{ var_sshd_set_keepalive }}
+      state: present
+      insertbefore: ^[#\s]*Match
+      validate: /usr/sbin/sshd -t -f %s
+  when:
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - sshd_set_keepalive | bool
+  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  tags:
+  - CCE-27082-7
+  - CJIS-5.5.6
+  - DISA-STIG-RHEL-07-040340
+  - NIST-800-171-3.1.11
+  - NIST-800-53-AC-12
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-AC-2(5)
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-SC-10
+  - PCI-DSS-Req-8.1.8
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+  - sshd_set_keepalive
+
+- name: Set SSH Idle Timeout Interval
+  block:
+  - name: Check for duplicate values
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      create: false
+      regexp: (?i)^\s*ClientAliveInterval\s+
+      state: absent
+    check_mode: true
+    changed_when: false
+    register: dupes
+  - name: Deduplicate values from /etc/ssh/sshd_config
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      create: false
+      regexp: (?i)^\s*ClientAliveInterval\s+
+      state: absent
+    when: dupes.found is defined and dupes.found > 1
+  - name: Insert correct line to /etc/ssh/sshd_config
+    lineinfile:
+      path: /etc/ssh/sshd_config
+      create: true
+      regexp: (?i)^\s*ClientAliveInterval\s+
+      line: ClientAliveInterval {{ sshd_idle_timeout_value }}
+      state: present
+      insertbefore: ^[#\s]*Match
+      validate: /usr/sbin/sshd -t -f %s
+  when:
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - sshd_set_idle_timeout | bool
+  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  tags:
+  - CCE-27433-2
+  - CJIS-5.5.6
+  - DISA-STIG-RHEL-07-040320
+  - NIST-800-171-3.1.11
+  - NIST-800-53-AC-12
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-AC-17(a)
+  - NIST-800-53-AC-2(5)
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-SC-10
+  - PCI-DSS-Req-8.1.8
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+  - sshd_set_idle_timeout
 
 - name: Disable Host-Based Authentication
   block:
@@ -26646,114 +26375,6 @@
   - restrict_strategy
   - sshd_enable_pam
 
-- name: Set SSH Idle Timeout Interval
-  block:
-  - name: Check for duplicate values
-    lineinfile:
-      path: /etc/ssh/sshd_config
-      create: false
-      regexp: (?i)^\s*ClientAliveInterval\s+
-      state: absent
-    check_mode: true
-    changed_when: false
-    register: dupes
-  - name: Deduplicate values from /etc/ssh/sshd_config
-    lineinfile:
-      path: /etc/ssh/sshd_config
-      create: false
-      regexp: (?i)^\s*ClientAliveInterval\s+
-      state: absent
-    when: dupes.found is defined and dupes.found > 1
-  - name: Insert correct line to /etc/ssh/sshd_config
-    lineinfile:
-      path: /etc/ssh/sshd_config
-      create: true
-      regexp: (?i)^\s*ClientAliveInterval\s+
-      line: ClientAliveInterval {{ sshd_idle_timeout_value }}
-      state: present
-      insertbefore: ^[#\s]*Match
-      validate: /usr/sbin/sshd -t -f %s
-  when:
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - restrict_strategy | bool
-  - sshd_set_idle_timeout | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  tags:
-  - CCE-27433-2
-  - CJIS-5.5.6
-  - DISA-STIG-RHEL-07-040320
-  - NIST-800-171-3.1.11
-  - NIST-800-53-AC-12
-  - NIST-800-53-AC-17(a)
-  - NIST-800-53-AC-17(a)
-  - NIST-800-53-AC-2(5)
-  - NIST-800-53-CM-6(a)
-  - NIST-800-53-CM-6(a)
-  - NIST-800-53-SC-10
-  - PCI-DSS-Req-8.1.8
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-  - restrict_strategy
-  - sshd_set_idle_timeout
-
-- name: Set SSH Client Alive Count Max
-  block:
-  - name: Check for duplicate values
-    lineinfile:
-      path: /etc/ssh/sshd_config
-      create: false
-      regexp: (?i)^\s*ClientAliveCountMax\s+
-      state: absent
-    check_mode: true
-    changed_when: false
-    register: dupes
-  - name: Deduplicate values from /etc/ssh/sshd_config
-    lineinfile:
-      path: /etc/ssh/sshd_config
-      create: false
-      regexp: (?i)^\s*ClientAliveCountMax\s+
-      state: absent
-    when: dupes.found is defined and dupes.found > 1
-  - name: Insert correct line to /etc/ssh/sshd_config
-    lineinfile:
-      path: /etc/ssh/sshd_config
-      create: true
-      regexp: (?i)^\s*ClientAliveCountMax\s+
-      line: ClientAliveCountMax {{ var_sshd_set_keepalive }}
-      state: present
-      insertbefore: ^[#\s]*Match
-      validate: /usr/sbin/sshd -t -f %s
-  when:
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - restrict_strategy | bool
-  - sshd_set_keepalive | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  tags:
-  - CCE-27082-7
-  - CJIS-5.5.6
-  - DISA-STIG-RHEL-07-040340
-  - NIST-800-171-3.1.11
-  - NIST-800-53-AC-12
-  - NIST-800-53-AC-17(a)
-  - NIST-800-53-AC-2(5)
-  - NIST-800-53-CM-6(a)
-  - NIST-800-53-SC-10
-  - PCI-DSS-Req-8.1.8
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-  - restrict_strategy
-  - sshd_set_keepalive
-
 - name: Ensure SSH LoginGraceTime is configured
   block:
   - name: Check for duplicate values
@@ -27094,30 +26715,6 @@
     - xorg-x11-server-common
     - xorg-x11-server-utils
     state: absent
-  tags:
-  - CCE-83410-1
-  - DISA-STIG-RHEL-07-040730
-  - NIST-800-53-CM-6(b)
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - reboot_required
-  - restrict_strategy
-  - xwindows_remove_packages
-  when:
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - reboot_required | bool
-  - restrict_strategy | bool
-  - xwindows_remove_packages | bool
-
-- name: Switch to multi-user runlevel
-  file:
-    src: /usr/lib/systemd/system/multi-user.target
-    dest: /etc/systemd/system/default.target
-    state: link
-    force: true
   tags:
   - CCE-83410-1
   - DISA-STIG-RHEL-07-040730
