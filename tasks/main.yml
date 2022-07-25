@@ -2555,7 +2555,7 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
 
-- name: Test for existence home directories to avoid creating them, but only fixing group ownership
+- name: Test for existence home directories to avoid creating them.
   ansible.builtin.stat:
     path: '{{ item.value[4] }}'
   register: path_exists
@@ -2567,8 +2567,8 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - restrict_strategy | bool
-  - item.value[2]|int >= 1000
-  - item.value[2]|int != 65534
+  - item.value[1]|int >= 1000
+  - item.value[1]|int != 65534
   tags:
   - CCE-80530-9
   - DISA-STIG-RHEL-07-020630
@@ -2579,10 +2579,12 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Ensure interactive local users are the group-owners of their respective home directories
+- name: Ensure interactive local users have proper permissions on their respective home directories
   ansible.builtin.file:
     path: '{{ item.0.value[4] }}'
     mode: u-s,g-w-s,o=-
+    follow: false
+    recurse: false
   loop: '{{ local_users|zip(path_exists.results)|list }}'
   when:
   - file_permissions_home_directories | bool
@@ -2802,7 +2804,7 @@
 - name: Replace user umask in /etc/profile
   replace:
     path: /etc/profile
-    regexp: umask.*
+    regexp: ^[^#]*umask
     replace: umask {{ var_accounts_user_umask }}
   register: umask_replace
   tags:
@@ -18325,9 +18327,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv6.conf.all.accept_ra.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -18352,7 +18357,7 @@
 
 - name: Comment out any occurrences of net.ipv6.conf.all.accept_ra from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv6.conf.all.accept_ra
     replace: '#net.ipv6.conf.all.accept_ra'
   loop: '{{ find_sysctl_d.files }}'
@@ -18406,9 +18411,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv6.conf.all.accept_redirects.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -18435,7 +18443,7 @@
 
 - name: Comment out any occurrences of net.ipv6.conf.all.accept_redirects from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv6.conf.all.accept_redirects
     replace: '#net.ipv6.conf.all.accept_redirects'
   loop: '{{ find_sysctl_d.files }}'
@@ -18493,9 +18501,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv6.conf.all.accept_source_route.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -18521,7 +18532,7 @@
 
 - name: Comment out any occurrences of net.ipv6.conf.all.accept_source_route from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv6.conf.all.accept_source_route
     replace: '#net.ipv6.conf.all.accept_source_route'
   loop: '{{ find_sysctl_d.files }}'
@@ -18577,9 +18588,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv6.conf.all.forwarding.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -18605,7 +18619,7 @@
 
 - name: Comment out any occurrences of net.ipv6.conf.all.forwarding from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv6.conf.all.forwarding
     replace: '#net.ipv6.conf.all.forwarding'
   loop: '{{ find_sysctl_d.files }}'
@@ -18661,9 +18675,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv6.conf.default.accept_ra.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -18688,7 +18705,7 @@
 
 - name: Comment out any occurrences of net.ipv6.conf.default.accept_ra from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv6.conf.default.accept_ra
     replace: '#net.ipv6.conf.default.accept_ra'
   loop: '{{ find_sysctl_d.files }}'
@@ -18742,9 +18759,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv6.conf.default.accept_redirects.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -18769,7 +18789,7 @@
 
 - name: Comment out any occurrences of net.ipv6.conf.default.accept_redirects from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv6.conf.default.accept_redirects
     replace: '#net.ipv6.conf.default.accept_redirects'
   loop: '{{ find_sysctl_d.files }}'
@@ -18823,9 +18843,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv6.conf.default.accept_source_route.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -18852,7 +18875,7 @@
 
 - name: Comment out any occurrences of net.ipv6.conf.default.accept_source_route from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv6.conf.default.accept_source_route
     replace: '#net.ipv6.conf.default.accept_source_route'
   loop: '{{ find_sysctl_d.files }}'
@@ -18910,9 +18933,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.conf.all.accept_redirects.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -18940,7 +18966,7 @@
 
 - name: Comment out any occurrences of net.ipv4.conf.all.accept_redirects from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.conf.all.accept_redirects
     replace: '#net.ipv4.conf.all.accept_redirects'
   loop: '{{ find_sysctl_d.files }}'
@@ -19000,9 +19026,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.conf.all.accept_source_route.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -19030,7 +19059,7 @@
 
 - name: Comment out any occurrences of net.ipv4.conf.all.accept_source_route from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.conf.all.accept_source_route
     replace: '#net.ipv4.conf.all.accept_source_route'
   loop: '{{ find_sysctl_d.files }}'
@@ -19090,9 +19119,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.conf.all.log_martians.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -19117,7 +19149,7 @@
 
 - name: Comment out any occurrences of net.ipv4.conf.all.log_martians from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.conf.all.log_martians
     replace: '#net.ipv4.conf.all.log_martians'
   loop: '{{ find_sysctl_d.files }}'
@@ -19171,9 +19203,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.conf.all.rp_filter.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -19200,7 +19235,7 @@
 
 - name: Comment out any occurrences of net.ipv4.conf.all.rp_filter from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.conf.all.rp_filter
     replace: '#net.ipv4.conf.all.rp_filter'
   loop: '{{ find_sysctl_d.files }}'
@@ -19258,9 +19293,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.conf.all.secure_redirects.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -19286,7 +19324,7 @@
 
 - name: Comment out any occurrences of net.ipv4.conf.all.secure_redirects from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.conf.all.secure_redirects
     replace: '#net.ipv4.conf.all.secure_redirects'
   loop: '{{ find_sysctl_d.files }}'
@@ -19342,9 +19380,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.conf.default.accept_redirects.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -19372,7 +19413,7 @@
 
 - name: Comment out any occurrences of net.ipv4.conf.default.accept_redirects from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.conf.default.accept_redirects
     replace: '#net.ipv4.conf.default.accept_redirects'
   loop: '{{ find_sysctl_d.files }}'
@@ -19432,9 +19473,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.conf.default.accept_source_route.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -19462,7 +19506,7 @@
 
 - name: Comment out any occurrences of net.ipv4.conf.default.accept_source_route from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.conf.default.accept_source_route
     replace: '#net.ipv4.conf.default.accept_source_route'
   loop: '{{ find_sysctl_d.files }}'
@@ -19522,9 +19566,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.conf.default.log_martians.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -19549,7 +19596,7 @@
 
 - name: Comment out any occurrences of net.ipv4.conf.default.log_martians from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.conf.default.log_martians
     replace: '#net.ipv4.conf.default.log_martians'
   loop: '{{ find_sysctl_d.files }}'
@@ -19603,9 +19650,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.conf.default.rp_filter.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -19632,7 +19682,7 @@
 
 - name: Comment out any occurrences of net.ipv4.conf.default.rp_filter from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.conf.default.rp_filter
     replace: '#net.ipv4.conf.default.rp_filter'
   loop: '{{ find_sysctl_d.files }}'
@@ -19690,9 +19740,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.conf.default.secure_redirects.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -19718,7 +19771,7 @@
 
 - name: Comment out any occurrences of net.ipv4.conf.default.secure_redirects from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.conf.default.secure_redirects
     replace: '#net.ipv4.conf.default.secure_redirects'
   loop: '{{ find_sysctl_d.files }}'
@@ -19774,9 +19827,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.icmp_echo_ignore_broadcasts.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -19803,7 +19859,7 @@
 
 - name: Comment out any occurrences of net.ipv4.icmp_echo_ignore_broadcasts from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.icmp_echo_ignore_broadcasts
     replace: '#net.ipv4.icmp_echo_ignore_broadcasts'
   loop: '{{ find_sysctl_d.files }}'
@@ -19861,9 +19917,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.icmp_ignore_bogus_error_responses.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -19888,7 +19947,7 @@
 
 - name: Comment out any occurrences of net.ipv4.icmp_ignore_bogus_error_responses from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.icmp_ignore_bogus_error_responses
     replace: '#net.ipv4.icmp_ignore_bogus_error_responses'
   loop: '{{ find_sysctl_d.files }}'
@@ -19942,9 +20001,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.tcp_syncookies.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -19973,7 +20035,7 @@
 
 - name: Comment out any occurrences of net.ipv4.tcp_syncookies from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.tcp_syncookies
     replace: '#net.ipv4.tcp_syncookies'
   loop: '{{ find_sysctl_d.files }}'
@@ -20035,9 +20097,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.conf.all.send_redirects.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -20066,7 +20131,7 @@
 
 - name: Comment out any occurrences of net.ipv4.conf.all.send_redirects from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.conf.all.send_redirects
     replace: '#net.ipv4.conf.all.send_redirects'
   loop: '{{ find_sysctl_d.files }}'
@@ -20128,9 +20193,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.conf.default.send_redirects.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -20159,7 +20227,7 @@
 
 - name: Comment out any occurrences of net.ipv4.conf.default.send_redirects from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.conf.default.send_redirects
     replace: '#net.ipv4.conf.default.send_redirects'
   loop: '{{ find_sysctl_d.files }}'
@@ -20221,9 +20289,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*net.ipv4.ip_forward.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -20251,7 +20322,7 @@
 
 - name: Comment out any occurrences of net.ipv4.ip_forward from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*net.ipv4.ip_forward
     replace: '#net.ipv4.ip_forward'
   loop: '{{ find_sysctl_d.files }}'
@@ -21727,7 +21798,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-80152-2
-  - DISA-STIG-RHEL-07-021022
+  - DISA-STIG-RHEL-07-021024
   - NIST-800-53-AC-6
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -21759,7 +21830,7 @@
   - (device_name.stdout | length > 0)
   tags:
   - CCE-80152-2
-  - DISA-STIG-RHEL-07-021022
+  - DISA-STIG-RHEL-07-021024
   - NIST-800-53-AC-6
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -21797,7 +21868,7 @@
   - (device_name.stdout | length == 0)
   tags:
   - CCE-80152-2
-  - DISA-STIG-RHEL-07-021022
+  - DISA-STIG-RHEL-07-021024
   - NIST-800-53-AC-6
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -21825,7 +21896,7 @@
   - mount_info is defined and "nodev" not in mount_info.options
   tags:
   - CCE-80152-2
-  - DISA-STIG-RHEL-07-021022
+  - DISA-STIG-RHEL-07-021024
   - NIST-800-53-AC-6
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -21857,7 +21928,7 @@
   - (device_name.stdout is defined and (device_name.stdout | length > 0)) or ("" | length == 0)
   tags:
   - CCE-80152-2
-  - DISA-STIG-RHEL-07-021022
+  - DISA-STIG-RHEL-07-021024
   - NIST-800-53-AC-6
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -22045,7 +22116,7 @@
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-80154-8
-  - DISA-STIG-RHEL-07-021023
+  - DISA-STIG-RHEL-07-021024
   - NIST-800-53-AC-6
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -22077,7 +22148,7 @@
   - (device_name.stdout | length > 0)
   tags:
   - CCE-80154-8
-  - DISA-STIG-RHEL-07-021023
+  - DISA-STIG-RHEL-07-021024
   - NIST-800-53-AC-6
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -22115,7 +22186,7 @@
   - (device_name.stdout | length == 0)
   tags:
   - CCE-80154-8
-  - DISA-STIG-RHEL-07-021023
+  - DISA-STIG-RHEL-07-021024
   - NIST-800-53-AC-6
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -22143,7 +22214,7 @@
   - mount_info is defined and "nosuid" not in mount_info.options
   tags:
   - CCE-80154-8
-  - DISA-STIG-RHEL-07-021023
+  - DISA-STIG-RHEL-07-021024
   - NIST-800-53-AC-6
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -22175,7 +22246,7 @@
   - (device_name.stdout is defined and (device_name.stdout | length > 0)) or ("" | length == 0)
   tags:
   - CCE-80154-8
-  - DISA-STIG-RHEL-07-021023
+  - DISA-STIG-RHEL-07-021024
   - NIST-800-53-AC-6
   - NIST-800-53-AC-6(1)
   - NIST-800-53-CM-6(a)
@@ -23367,9 +23438,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*fs.suid_dumpable.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -23392,7 +23466,7 @@
 
 - name: Comment out any occurrences of fs.suid_dumpable from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*fs.suid_dumpable
     replace: '#fs.suid_dumpable'
   loop: '{{ find_sysctl_d.files }}'
@@ -23442,9 +23516,12 @@
 
 - name: List /etc/sysctl.d/*.conf files
   find:
-    paths: /etc/sysctl.d/
+    paths:
+    - /etc/sysctl.d/
+    - /run/sysctl.d/
     contains: ^[\s]*kernel.randomize_va_space.*$
     patterns: '*.conf'
+    file_type: any
   register: find_sysctl_d
   when:
   - disable_strategy | bool
@@ -23470,7 +23547,7 @@
 
 - name: Comment out any occurrences of kernel.randomize_va_space from /etc/sysctl.d/*.conf files
   replace:
-    path: '{{ item }}'
+    path: '{{ item.path }}'
     regexp: ^[\s]*kernel.randomize_va_space
     replace: '#kernel.randomize_va_space'
   loop: '{{ find_sysctl_d.files }}'
