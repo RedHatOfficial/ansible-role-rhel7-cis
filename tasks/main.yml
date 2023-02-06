@@ -1,3 +1,64 @@
+- name: Check If Prelinked Is Installed
+  ansible.builtin.stat:
+    path: /usr/sbin/prelink
+    get_checksum: false
+  register: prelink
+  tags:
+  - CCE-86562-6
+  - disable_strategy
+  - low_disruption
+  - medium_complexity
+  - medium_severity
+  - no_reboot_needed
+  - package_prelink_removed
+  when:
+  - disable_strategy | bool
+  - low_disruption | bool
+  - medium_complexity | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - package_prelink_removed | bool
+
+- name: Restore Prelinked Binaries
+  ansible.builtin.command:
+    cmd: prelink -ua
+  when:
+  - disable_strategy | bool
+  - low_disruption | bool
+  - medium_complexity | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - package_prelink_removed | bool
+  - prelink.stat.exists
+  tags:
+  - CCE-86562-6
+  - disable_strategy
+  - low_disruption
+  - medium_complexity
+  - medium_severity
+  - no_reboot_needed
+  - package_prelink_removed
+
+- name: Ensure prelink is Removed
+  ansible.builtin.package:
+    name: prelink
+    state: absent
+  tags:
+  - CCE-86562-6
+  - disable_strategy
+  - low_disruption
+  - medium_complexity
+  - medium_severity
+  - no_reboot_needed
+  - package_prelink_removed
+  when:
+  - disable_strategy | bool
+  - low_disruption | bool
+  - medium_complexity | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - package_prelink_removed | bool
+
 - name: Ensure aide is installed
   package:
     name: aide
@@ -31,6 +92,7 @@
   with_items:
   - aide
   when:
+  - DISA_STIG_RHEL_07_020029 | bool
   - aide_build_database | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -41,6 +103,7 @@
   tags:
   - CCE-27220-3
   - CJIS-5.10.1.3
+  - DISA-STIG-RHEL-07-020029
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-11.5
   - aide_build_database
@@ -54,6 +117,7 @@
   command: /usr/sbin/aide --init
   changed_when: true
   when:
+  - DISA_STIG_RHEL_07_020029 | bool
   - aide_build_database | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -64,6 +128,7 @@
   tags:
   - CCE-27220-3
   - CJIS-5.10.1.3
+  - DISA-STIG-RHEL-07-020029
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-11.5
   - aide_build_database
@@ -78,6 +143,7 @@
     path: /var/lib/aide/aide.db.new.gz
   register: aide_database_stat
   when:
+  - DISA_STIG_RHEL_07_020029 | bool
   - aide_build_database | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -88,6 +154,7 @@
   tags:
   - CCE-27220-3
   - CJIS-5.10.1.3
+  - DISA-STIG-RHEL-07-020029
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-11.5
   - aide_build_database
@@ -104,6 +171,7 @@
     backup: true
     remote_src: true
   when:
+  - DISA_STIG_RHEL_07_020029 | bool
   - aide_build_database | bool
   - low_complexity | bool
   - low_disruption | bool
@@ -115,6 +183,7 @@
   tags:
   - CCE-27220-3
   - CJIS-5.10.1.3
+  - DISA-STIG-RHEL-07-020029
   - NIST-800-53-CM-6(a)
   - PCI-DSS-Req-11.5
   - aide_build_database
@@ -1399,10 +1468,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: 'Limit Password Reuse: password-auth - Check if /etc/pam.d/password-auth file is present'
+- name: 'Limit Password Reuse: password-auth - Check if system relies on authselect tool'
   ansible.builtin.stat:
-    path: /etc/pam.d/password-auth
-  register: result_pam_file_present
+    path: /usr/bin/authselect
+  register: result_authselect_present
   when:
   - DISA_STIG_RHEL_07_010270 | bool
   - accounts_password_pam_pwhistory_remember_password_auth | bool
@@ -1427,16 +1496,112 @@
   - medium_severity
   - no_reboot_needed
 
-- name: 'Limit Password Reuse: password-auth - Check the proper remediation for the system'
+- name: 'Limit Password Reuse: password-auth - Collect the available authselect features'
+  ansible.builtin.command:
+    cmd: authselect list-features minimal
+  register: result_authselect_available_features
+  changed_when: false
+  when:
+  - DISA_STIG_RHEL_07_010270 | bool
+  - accounts_password_pam_pwhistory_remember_password_auth | bool
+  - configure_strategy | bool
+  - low_complexity | bool
+  - medium_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - '"pam" in ansible_facts.packages'
+  - result_authselect_present.stat.exists
+  tags:
+  - CCE-83476-2
+  - CJIS-5.6.2.1.1
+  - DISA-STIG-RHEL-07-010270
+  - NIST-800-171-3.5.8
+  - NIST-800-53-IA-5(1)(e)
+  - NIST-800-53-IA-5(f)
+  - PCI-DSS-Req-8.2.5
+  - accounts_password_pam_pwhistory_remember_password_auth
+  - configure_strategy
+  - low_complexity
+  - medium_disruption
+  - medium_severity
+  - no_reboot_needed
+
+- name: 'Limit Password Reuse: password-auth - Enable pam_pwhistory.so using authselect feature'
+  block:
+  - name: 'Limit Password Reuse: password-auth - Check integrity of authselect current profile'
+    ansible.builtin.command:
+      cmd: authselect check
+    register: result_authselect_check_cmd
+    changed_when: false
+    ignore_errors: true
+  - name: 'Limit Password Reuse: password-auth - Informative message based on the authselect integrity check result'
+    ansible.builtin.assert:
+      that:
+      - result_authselect_check_cmd is success
+      fail_msg:
+      - authselect integrity check failed. Remediation aborted!
+      - This remediation could not be applied because an authselect profile was not selected or the selected profile is not
+        intact.
+      - It is not recommended to manually edit the PAM files when authselect tool is available.
+      - In cases where the default authselect profile does not cover a specific demand, a custom authselect profile is recommended.
+      success_msg:
+      - authselect integrity check passed
+  - name: 'Limit Password Reuse: password-auth - Get authselect current features'
+    ansible.builtin.shell:
+      cmd: authselect current | tail -n+3 | awk '{ print $2 }'
+    register: result_authselect_features
+    changed_when: false
+    when:
+    - result_authselect_check_cmd is success
+  - name: 'Limit Password Reuse: password-auth - Ensure "with-pwhistory" feature is enabled using authselect tool'
+    ansible.builtin.command:
+      cmd: authselect enable-feature with-pwhistory
+    register: result_authselect_enable_feature_cmd
+    when:
+    - result_authselect_check_cmd is success
+    - result_authselect_features.stdout is not search("with-pwhistory")
+  - name: 'Limit Password Reuse: password-auth - Ensure authselect changes are applied'
+    ansible.builtin.command:
+      cmd: authselect apply-changes -b
+    when:
+    - result_authselect_enable_feature_cmd is not skipped
+    - result_authselect_enable_feature_cmd is success
+  when:
+  - DISA_STIG_RHEL_07_010270 | bool
+  - accounts_password_pam_pwhistory_remember_password_auth | bool
+  - configure_strategy | bool
+  - low_complexity | bool
+  - medium_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - '"pam" in ansible_facts.packages'
+  - result_authselect_present.stat.exists
+  - result_authselect_available_features.stdout is search("with-pwhistory")
+  tags:
+  - CCE-83476-2
+  - CJIS-5.6.2.1.1
+  - DISA-STIG-RHEL-07-010270
+  - NIST-800-171-3.5.8
+  - NIST-800-53-IA-5(1)(e)
+  - NIST-800-53-IA-5(f)
+  - PCI-DSS-Req-8.2.5
+  - accounts_password_pam_pwhistory_remember_password_auth
+  - configure_strategy
+  - low_complexity
+  - medium_disruption
+  - medium_severity
+  - no_reboot_needed
+
+- name: 'Limit Password Reuse: password-auth - Enable pam_pwhistory.so in appropriate PAM files'
   block:
   - name: 'Limit Password Reuse: password-auth - Define the PAM file to be edited as a local fact'
     ansible.builtin.set_fact:
       pam_file_path: /etc/pam.d/password-auth
-  - name: 'Limit Password Reuse: password-auth - Check if system relies on authselect'
+  - name: 'Limit Password Reuse: password-auth - Check if system relies on authselect tool'
     ansible.builtin.stat:
       path: /usr/bin/authselect
     register: result_authselect_present
-  - name: 'Limit Password Reuse: password-auth - Remediate using authselect'
+  - name: 'Limit Password Reuse: password-auth - Ensure authselect custom profile is used if authselect is present'
     block:
     - name: 'Limit Password Reuse: password-auth - Check integrity of authselect current profile'
       ansible.builtin.command:
@@ -1583,10 +1748,388 @@
     when:
     - result_pam_line_present.found is defined
     - result_pam_line_present.found == 0
+  when:
+  - DISA_STIG_RHEL_07_010270 | bool
+  - accounts_password_pam_pwhistory_remember_password_auth | bool
+  - configure_strategy | bool
+  - low_complexity | bool
+  - medium_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - '"pam" in ansible_facts.packages'
+  - '(result_authselect_available_features.stdout is defined and result_authselect_available_features.stdout is not search("with-pwhistory"))
+    or result_authselect_available_features is not defined
+
+    '
+  tags:
+  - CCE-83476-2
+  - CJIS-5.6.2.1.1
+  - DISA-STIG-RHEL-07-010270
+  - NIST-800-171-3.5.8
+  - NIST-800-53-IA-5(1)(e)
+  - NIST-800-53-IA-5(f)
+  - PCI-DSS-Req-8.2.5
+  - accounts_password_pam_pwhistory_remember_password_auth
+  - configure_strategy
+  - low_complexity
+  - medium_disruption
+  - medium_severity
+  - no_reboot_needed
+
+- name: 'Limit Password Reuse: password-auth - Check the presence of /etc/security/pwhistory.conf file'
+  ansible.builtin.stat:
+    path: /etc/security/pwhistory.conf
+  register: result_pwhistory_conf_check
+  when:
+  - DISA_STIG_RHEL_07_010270 | bool
+  - accounts_password_pam_pwhistory_remember_password_auth | bool
+  - configure_strategy | bool
+  - low_complexity | bool
+  - medium_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - '"pam" in ansible_facts.packages'
+  tags:
+  - CCE-83476-2
+  - CJIS-5.6.2.1.1
+  - DISA-STIG-RHEL-07-010270
+  - NIST-800-171-3.5.8
+  - NIST-800-53-IA-5(1)(e)
+  - NIST-800-53-IA-5(f)
+  - PCI-DSS-Req-8.2.5
+  - accounts_password_pam_pwhistory_remember_password_auth
+  - configure_strategy
+  - low_complexity
+  - medium_disruption
+  - medium_severity
+  - no_reboot_needed
+
+- name: 'Limit Password Reuse: password-auth - pam_pwhistory.so parameters are configured in /etc/security/pwhistory.conf
+    file'
+  block:
+  - name: 'Limit Password Reuse: password-auth - Ensure the pam_pwhistory.so remember parameter in /etc/security/pwhistory.conf'
+    ansible.builtin.lineinfile:
+      path: /etc/security/pwhistory.conf
+      regexp: ^\s*remember\s*=
+      line: remember = {{ var_password_pam_remember }}
+      state: present
+  - name: 'Limit Password Reuse: password-auth - Ensure the pam_pwhistory.so remember parameter is removed from PAM files'
+    block:
+    - name: 'Limit Password Reuse: password-auth - Check if /etc/pam.d/password-auth file is present'
+      ansible.builtin.stat:
+        path: /etc/pam.d/password-auth
+      register: result_pam_file_present
+    - name: 'Limit Password Reuse: password-auth - Check the proper remediation for the system'
+      block:
+      - name: 'Limit Password Reuse: password-auth - Define the PAM file to be edited as a local fact'
+        ansible.builtin.set_fact:
+          pam_file_path: /etc/pam.d/password-auth
+      - name: 'Limit Password Reuse: password-auth - Check if system relies on authselect tool'
+        ansible.builtin.stat:
+          path: /usr/bin/authselect
+        register: result_authselect_present
+      - name: 'Limit Password Reuse: password-auth - Ensure authselect custom profile is used if authselect is present'
+        block:
+        - name: 'Limit Password Reuse: password-auth - Check integrity of authselect current profile'
+          ansible.builtin.command:
+            cmd: authselect check
+          register: result_authselect_check_cmd
+          changed_when: false
+          ignore_errors: true
+        - name: 'Limit Password Reuse: password-auth - Informative message based on the authselect integrity check result'
+          ansible.builtin.assert:
+            that:
+            - result_authselect_check_cmd is success
+            fail_msg:
+            - authselect integrity check failed. Remediation aborted!
+            - This remediation could not be applied because an authselect profile was not selected or the selected profile
+              is not intact.
+            - It is not recommended to manually edit the PAM files when authselect tool is available.
+            - In cases where the default authselect profile does not cover a specific demand, a custom authselect profile
+              is recommended.
+            success_msg:
+            - authselect integrity check passed
+        - name: 'Limit Password Reuse: password-auth - Get authselect current profile'
+          ansible.builtin.shell:
+            cmd: authselect current -r | awk '{ print $1 }'
+          register: result_authselect_profile
+          changed_when: false
+          when:
+          - result_authselect_check_cmd is success
+        - name: 'Limit Password Reuse: password-auth - Define the current authselect profile as a local fact'
+          ansible.builtin.set_fact:
+            authselect_current_profile: '{{ result_authselect_profile.stdout }}'
+            authselect_custom_profile: '{{ result_authselect_profile.stdout }}'
+          when:
+          - result_authselect_profile is not skipped
+          - result_authselect_profile.stdout is match("custom/")
+        - name: 'Limit Password Reuse: password-auth - Define the new authselect custom profile as a local fact'
+          ansible.builtin.set_fact:
+            authselect_current_profile: '{{ result_authselect_profile.stdout }}'
+            authselect_custom_profile: custom/hardening
+          when:
+          - result_authselect_profile is not skipped
+          - result_authselect_profile.stdout is not match("custom/")
+        - name: 'Limit Password Reuse: password-auth - Get authselect current features to also enable them in the custom profile'
+          ansible.builtin.shell:
+            cmd: authselect current | tail -n+3 | awk '{ print $2 }'
+          register: result_authselect_features
+          changed_when: false
+          when:
+          - result_authselect_profile is not skipped
+          - authselect_current_profile is not match("custom/")
+        - name: 'Limit Password Reuse: password-auth - Check if any custom profile with the same name was already created'
+          ansible.builtin.stat:
+            path: /etc/authselect/{{ authselect_custom_profile }}
+          register: result_authselect_custom_profile_present
+          changed_when: false
+          when:
+          - authselect_current_profile is not match("custom/")
+        - name: 'Limit Password Reuse: password-auth - Create an authselect custom profile based on the current profile'
+          ansible.builtin.command:
+            cmd: authselect create-profile hardening -b {{ authselect_current_profile }}
+          when:
+          - result_authselect_check_cmd is success
+          - authselect_current_profile is not match("custom/")
+          - not result_authselect_custom_profile_present.stat.exists
+        - name: 'Limit Password Reuse: password-auth - Ensure authselect changes are applied'
+          ansible.builtin.command:
+            cmd: authselect apply-changes -b --backup=before-hardening-custom-profile
+          when:
+          - result_authselect_check_cmd is success
+          - result_authselect_profile is not skipped
+          - authselect_current_profile is not match("custom/")
+          - authselect_custom_profile is not match(authselect_current_profile)
+        - name: 'Limit Password Reuse: password-auth - Ensure the authselect custom profile is selected'
+          ansible.builtin.command:
+            cmd: authselect select {{ authselect_custom_profile }}
+          register: result_pam_authselect_select_profile
+          when:
+          - result_authselect_check_cmd is success
+          - result_authselect_profile is not skipped
+          - authselect_current_profile is not match("custom/")
+          - authselect_custom_profile is not match(authselect_current_profile)
+        - name: 'Limit Password Reuse: password-auth - Restore the authselect features in the custom profile'
+          ansible.builtin.command:
+            cmd: authselect enable-feature {{ item }}
+          loop: '{{ result_authselect_features.stdout_lines }}'
+          register: result_pam_authselect_restore_features
+          when:
+          - result_authselect_profile is not skipped
+          - result_authselect_features is not skipped
+          - result_pam_authselect_select_profile is not skipped
+        - name: 'Limit Password Reuse: password-auth - Ensure authselect changes are applied'
+          ansible.builtin.command:
+            cmd: authselect apply-changes -b --backup=after-hardening-custom-profile
+          when:
+          - result_authselect_check_cmd is success
+          - result_authselect_profile is not skipped
+          - result_pam_authselect_restore_features is not skipped
+        - name: 'Limit Password Reuse: password-auth - Change the PAM file to be edited according to the custom authselect
+            profile'
+          ansible.builtin.set_fact:
+            pam_file_path: /etc/authselect/{{ authselect_custom_profile }}/{{ pam_file_path | basename }}
+        when:
+        - result_authselect_present.stat.exists
+      - name: 'Limit Password Reuse: password-auth - Ensure the "remember" option from "pam_pwhistory.so" is not present in
+          {{ pam_file_path }}'
+        ansible.builtin.replace:
+          dest: '{{ pam_file_path }}'
+          regexp: (.*password.*pam_pwhistory.so.*)\bremember\b=?[0-9a-zA-Z]*(.*)
+          replace: \1\2
+        register: result_pam_option_removal
+      - name: 'Limit Password Reuse: password-auth - Ensure authselect changes are applied'
+        ansible.builtin.command:
+          cmd: authselect apply-changes -b
+        when:
+        - result_authselect_present.stat.exists
+        - result_pam_option_removal is changed
+      when:
+      - result_pam_file_present.stat.exists
+  when:
+  - DISA_STIG_RHEL_07_010270 | bool
+  - accounts_password_pam_pwhistory_remember_password_auth | bool
+  - configure_strategy | bool
+  - low_complexity | bool
+  - medium_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - '"pam" in ansible_facts.packages'
+  - result_pwhistory_conf_check.stat.exists
+  tags:
+  - CCE-83476-2
+  - CJIS-5.6.2.1.1
+  - DISA-STIG-RHEL-07-010270
+  - NIST-800-171-3.5.8
+  - NIST-800-53-IA-5(1)(e)
+  - NIST-800-53-IA-5(f)
+  - PCI-DSS-Req-8.2.5
+  - accounts_password_pam_pwhistory_remember_password_auth
+  - configure_strategy
+  - low_complexity
+  - medium_disruption
+  - medium_severity
+  - no_reboot_needed
+
+- name: 'Limit Password Reuse: password-auth - pam_pwhistory.so parameters are configured in PAM files'
+  block:
+  - name: 'Limit Password Reuse: password-auth - Define the PAM file to be edited as a local fact'
+    ansible.builtin.set_fact:
+      pam_file_path: /etc/pam.d/password-auth
+  - name: 'Limit Password Reuse: password-auth - Check if system relies on authselect tool'
+    ansible.builtin.stat:
+      path: /usr/bin/authselect
+    register: result_authselect_present
+  - name: 'Limit Password Reuse: password-auth - Ensure authselect custom profile is used if authselect is present'
+    block:
+    - name: 'Limit Password Reuse: password-auth - Check integrity of authselect current profile'
+      ansible.builtin.command:
+        cmd: authselect check
+      register: result_authselect_check_cmd
+      changed_when: false
+      ignore_errors: true
+    - name: 'Limit Password Reuse: password-auth - Informative message based on the authselect integrity check result'
+      ansible.builtin.assert:
+        that:
+        - result_authselect_check_cmd is success
+        fail_msg:
+        - authselect integrity check failed. Remediation aborted!
+        - This remediation could not be applied because an authselect profile was not selected or the selected profile is
+          not intact.
+        - It is not recommended to manually edit the PAM files when authselect tool is available.
+        - In cases where the default authselect profile does not cover a specific demand, a custom authselect profile is recommended.
+        success_msg:
+        - authselect integrity check passed
+    - name: 'Limit Password Reuse: password-auth - Get authselect current profile'
+      ansible.builtin.shell:
+        cmd: authselect current -r | awk '{ print $1 }'
+      register: result_authselect_profile
+      changed_when: false
+      when:
+      - result_authselect_check_cmd is success
+    - name: 'Limit Password Reuse: password-auth - Define the current authselect profile as a local fact'
+      ansible.builtin.set_fact:
+        authselect_current_profile: '{{ result_authselect_profile.stdout }}'
+        authselect_custom_profile: '{{ result_authselect_profile.stdout }}'
+      when:
+      - result_authselect_profile is not skipped
+      - result_authselect_profile.stdout is match("custom/")
+    - name: 'Limit Password Reuse: password-auth - Define the new authselect custom profile as a local fact'
+      ansible.builtin.set_fact:
+        authselect_current_profile: '{{ result_authselect_profile.stdout }}'
+        authselect_custom_profile: custom/hardening
+      when:
+      - result_authselect_profile is not skipped
+      - result_authselect_profile.stdout is not match("custom/")
+    - name: 'Limit Password Reuse: password-auth - Get authselect current features to also enable them in the custom profile'
+      ansible.builtin.shell:
+        cmd: authselect current | tail -n+3 | awk '{ print $2 }'
+      register: result_authselect_features
+      changed_when: false
+      when:
+      - result_authselect_profile is not skipped
+      - authselect_current_profile is not match("custom/")
+    - name: 'Limit Password Reuse: password-auth - Check if any custom profile with the same name was already created'
+      ansible.builtin.stat:
+        path: /etc/authselect/{{ authselect_custom_profile }}
+      register: result_authselect_custom_profile_present
+      changed_when: false
+      when:
+      - authselect_current_profile is not match("custom/")
+    - name: 'Limit Password Reuse: password-auth - Create an authselect custom profile based on the current profile'
+      ansible.builtin.command:
+        cmd: authselect create-profile hardening -b {{ authselect_current_profile }}
+      when:
+      - result_authselect_check_cmd is success
+      - authselect_current_profile is not match("custom/")
+      - not result_authselect_custom_profile_present.stat.exists
+    - name: 'Limit Password Reuse: password-auth - Ensure authselect changes are applied'
+      ansible.builtin.command:
+        cmd: authselect apply-changes -b --backup=before-hardening-custom-profile
+      when:
+      - result_authselect_check_cmd is success
+      - result_authselect_profile is not skipped
+      - authselect_current_profile is not match("custom/")
+      - authselect_custom_profile is not match(authselect_current_profile)
+    - name: 'Limit Password Reuse: password-auth - Ensure the authselect custom profile is selected'
+      ansible.builtin.command:
+        cmd: authselect select {{ authselect_custom_profile }}
+      register: result_pam_authselect_select_profile
+      when:
+      - result_authselect_check_cmd is success
+      - result_authselect_profile is not skipped
+      - authselect_current_profile is not match("custom/")
+      - authselect_custom_profile is not match(authselect_current_profile)
+    - name: 'Limit Password Reuse: password-auth - Restore the authselect features in the custom profile'
+      ansible.builtin.command:
+        cmd: authselect enable-feature {{ item }}
+      loop: '{{ result_authselect_features.stdout_lines }}'
+      register: result_pam_authselect_restore_features
+      when:
+      - result_authselect_profile is not skipped
+      - result_authselect_features is not skipped
+      - result_pam_authselect_select_profile is not skipped
+    - name: 'Limit Password Reuse: password-auth - Ensure authselect changes are applied'
+      ansible.builtin.command:
+        cmd: authselect apply-changes -b --backup=after-hardening-custom-profile
+      when:
+      - result_authselect_check_cmd is success
+      - result_authselect_profile is not skipped
+      - result_pam_authselect_restore_features is not skipped
+    - name: 'Limit Password Reuse: password-auth - Change the PAM file to be edited according to the custom authselect profile'
+      ansible.builtin.set_fact:
+        pam_file_path: /etc/authselect/{{ authselect_custom_profile }}/{{ pam_file_path | basename }}
+    when:
+    - result_authselect_present.stat.exists
+  - name: 'Limit Password Reuse: password-auth - Check if expected PAM module line is present in {{ pam_file_path }}'
+    ansible.builtin.lineinfile:
+      path: '{{ pam_file_path }}'
+      regexp: ^\s*password\s+requisite\s+pam_pwhistory.so\s*.*
+      state: absent
+    check_mode: true
+    changed_when: false
+    register: result_pam_line_present
+  - name: 'Limit Password Reuse: password-auth - Include or update the PAM module line in {{ pam_file_path }}'
+    block:
+    - name: 'Limit Password Reuse: password-auth - Check if required PAM module line is present in {{ pam_file_path }} with
+        different control'
+      ansible.builtin.lineinfile:
+        path: '{{ pam_file_path }}'
+        regexp: ^\s*password\s+.*\s+pam_pwhistory.so\s*
+        state: absent
+      check_mode: true
+      changed_when: false
+      register: result_pam_line_other_control_present
+    - name: 'Limit Password Reuse: password-auth - Ensure the correct control for the required PAM module line in {{ pam_file_path
+        }}'
+      ansible.builtin.replace:
+        dest: '{{ pam_file_path }}'
+        regexp: ^(\s*password\s+).*(\bpam_pwhistory.so.*)
+        replace: \1requisite \2
+      register: result_pam_module_edit
+      when:
+      - result_pam_line_other_control_present.found == 1
+    - name: 'Limit Password Reuse: password-auth - Ensure the required PAM module line is included in {{ pam_file_path }}'
+      ansible.builtin.lineinfile:
+        dest: '{{ pam_file_path }}'
+        line: password    requisite    pam_pwhistory.so
+      register: result_pam_module_add
+      when:
+      - result_pam_line_other_control_present.found == 0 or result_pam_line_other_control_present.found > 1
+    - name: 'Limit Password Reuse: password-auth - Ensure authselect changes are applied'
+      ansible.builtin.command:
+        cmd: authselect apply-changes -b
+      when: 'result_authselect_present is defined and result_authselect_present.stat.exists and ((result_pam_module_add is
+        defined and result_pam_module_add.changed) or (result_pam_module_edit is defined and result_pam_module_edit.changed))
+
+        '
+    when:
+    - result_pam_line_present.found is defined
+    - result_pam_line_present.found == 0
   - name: 'Limit Password Reuse: password-auth - Check if the required PAM module option is present in {{ pam_file_path }}'
     ansible.builtin.lineinfile:
       path: '{{ pam_file_path }}'
-      regexp: ^\s*password\s+{{ var_password_pam_remember_control_flag.split(",")[0] }}\s+pam_pwhistory.so\s*.*\sremember\b
+      regexp: ^\s*password\s+requisite\s+pam_pwhistory.so\s*.*\sremember\b
       state: absent
     check_mode: true
     changed_when: false
@@ -1596,7 +2139,7 @@
     ansible.builtin.lineinfile:
       path: '{{ pam_file_path }}'
       backrefs: true
-      regexp: ^(\s*password\s+{{ var_password_pam_remember_control_flag.split(",")[0] }}\s+pam_pwhistory.so.*)
+      regexp: ^(\s*password\s+requisite\s+pam_pwhistory.so.*)
       line: \1 remember={{ var_password_pam_remember }}
       state: present
     register: result_pam_remember_add
@@ -1607,7 +2150,7 @@
     ansible.builtin.lineinfile:
       path: '{{ pam_file_path }}'
       backrefs: true
-      regexp: ^(\s*password\s+{{ var_password_pam_remember_control_flag.split(",")[0] }}\s+pam_pwhistory.so\s+.*)(remember)=[0-9a-zA-Z]+\s*(.*)
+      regexp: ^(\s*password\s+requisite\s+pam_pwhistory.so\s+.*)(remember)=[0-9a-zA-Z]+\s*(.*)
       line: \1\2={{ var_password_pam_remember }} \3
     register: result_pam_remember_edit
     when:
@@ -1628,7 +2171,7 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - '"pam" in ansible_facts.packages'
-  - result_pam_file_present.stat.exists
+  - not result_pwhistory_conf_check.stat.exists
   tags:
   - CCE-83476-2
   - CJIS-5.6.2.1.1
@@ -1670,10 +2213,10 @@
   - medium_severity | bool
   - no_reboot_needed | bool
 
-- name: 'Limit Password Reuse: system-auth - Check if /etc/pam.d/system-auth file is present'
+- name: 'Limit Password Reuse: system-auth - Check if system relies on authselect tool'
   ansible.builtin.stat:
-    path: /etc/pam.d/system-auth
-  register: result_pam_file_present
+    path: /usr/bin/authselect
+  register: result_authselect_present
   when:
   - DISA_STIG_RHEL_07_010270 | bool
   - accounts_password_pam_pwhistory_remember_system_auth | bool
@@ -1698,16 +2241,112 @@
   - medium_severity
   - no_reboot_needed
 
-- name: 'Limit Password Reuse: system-auth - Check the proper remediation for the system'
+- name: 'Limit Password Reuse: system-auth - Collect the available authselect features'
+  ansible.builtin.command:
+    cmd: authselect list-features minimal
+  register: result_authselect_available_features
+  changed_when: false
+  when:
+  - DISA_STIG_RHEL_07_010270 | bool
+  - accounts_password_pam_pwhistory_remember_system_auth | bool
+  - configure_strategy | bool
+  - low_complexity | bool
+  - medium_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - '"pam" in ansible_facts.packages'
+  - result_authselect_present.stat.exists
+  tags:
+  - CCE-83479-6
+  - CJIS-5.6.2.1.1
+  - DISA-STIG-RHEL-07-010270
+  - NIST-800-171-3.5.8
+  - NIST-800-53-IA-5(1)(e)
+  - NIST-800-53-IA-5(f)
+  - PCI-DSS-Req-8.2.5
+  - accounts_password_pam_pwhistory_remember_system_auth
+  - configure_strategy
+  - low_complexity
+  - medium_disruption
+  - medium_severity
+  - no_reboot_needed
+
+- name: 'Limit Password Reuse: system-auth - Enable pam_pwhistory.so using authselect feature'
+  block:
+  - name: 'Limit Password Reuse: system-auth - Check integrity of authselect current profile'
+    ansible.builtin.command:
+      cmd: authselect check
+    register: result_authselect_check_cmd
+    changed_when: false
+    ignore_errors: true
+  - name: 'Limit Password Reuse: system-auth - Informative message based on the authselect integrity check result'
+    ansible.builtin.assert:
+      that:
+      - result_authselect_check_cmd is success
+      fail_msg:
+      - authselect integrity check failed. Remediation aborted!
+      - This remediation could not be applied because an authselect profile was not selected or the selected profile is not
+        intact.
+      - It is not recommended to manually edit the PAM files when authselect tool is available.
+      - In cases where the default authselect profile does not cover a specific demand, a custom authselect profile is recommended.
+      success_msg:
+      - authselect integrity check passed
+  - name: 'Limit Password Reuse: system-auth - Get authselect current features'
+    ansible.builtin.shell:
+      cmd: authselect current | tail -n+3 | awk '{ print $2 }'
+    register: result_authselect_features
+    changed_when: false
+    when:
+    - result_authselect_check_cmd is success
+  - name: 'Limit Password Reuse: system-auth - Ensure "with-pwhistory" feature is enabled using authselect tool'
+    ansible.builtin.command:
+      cmd: authselect enable-feature with-pwhistory
+    register: result_authselect_enable_feature_cmd
+    when:
+    - result_authselect_check_cmd is success
+    - result_authselect_features.stdout is not search("with-pwhistory")
+  - name: 'Limit Password Reuse: system-auth - Ensure authselect changes are applied'
+    ansible.builtin.command:
+      cmd: authselect apply-changes -b
+    when:
+    - result_authselect_enable_feature_cmd is not skipped
+    - result_authselect_enable_feature_cmd is success
+  when:
+  - DISA_STIG_RHEL_07_010270 | bool
+  - accounts_password_pam_pwhistory_remember_system_auth | bool
+  - configure_strategy | bool
+  - low_complexity | bool
+  - medium_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - '"pam" in ansible_facts.packages'
+  - result_authselect_present.stat.exists
+  - result_authselect_available_features.stdout is search("with-pwhistory")
+  tags:
+  - CCE-83479-6
+  - CJIS-5.6.2.1.1
+  - DISA-STIG-RHEL-07-010270
+  - NIST-800-171-3.5.8
+  - NIST-800-53-IA-5(1)(e)
+  - NIST-800-53-IA-5(f)
+  - PCI-DSS-Req-8.2.5
+  - accounts_password_pam_pwhistory_remember_system_auth
+  - configure_strategy
+  - low_complexity
+  - medium_disruption
+  - medium_severity
+  - no_reboot_needed
+
+- name: 'Limit Password Reuse: system-auth - Enable pam_pwhistory.so in appropriate PAM files'
   block:
   - name: 'Limit Password Reuse: system-auth - Define the PAM file to be edited as a local fact'
     ansible.builtin.set_fact:
       pam_file_path: /etc/pam.d/system-auth
-  - name: 'Limit Password Reuse: system-auth - Check if system relies on authselect'
+  - name: 'Limit Password Reuse: system-auth - Check if system relies on authselect tool'
     ansible.builtin.stat:
       path: /usr/bin/authselect
     register: result_authselect_present
-  - name: 'Limit Password Reuse: system-auth - Remediate using authselect'
+  - name: 'Limit Password Reuse: system-auth - Ensure authselect custom profile is used if authselect is present'
     block:
     - name: 'Limit Password Reuse: system-auth - Check integrity of authselect current profile'
       ansible.builtin.command:
@@ -1854,10 +2493,386 @@
     when:
     - result_pam_line_present.found is defined
     - result_pam_line_present.found == 0
+  when:
+  - DISA_STIG_RHEL_07_010270 | bool
+  - accounts_password_pam_pwhistory_remember_system_auth | bool
+  - configure_strategy | bool
+  - low_complexity | bool
+  - medium_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - '"pam" in ansible_facts.packages'
+  - '(result_authselect_available_features.stdout is defined and result_authselect_available_features.stdout is not search("with-pwhistory"))
+    or result_authselect_available_features is not defined
+
+    '
+  tags:
+  - CCE-83479-6
+  - CJIS-5.6.2.1.1
+  - DISA-STIG-RHEL-07-010270
+  - NIST-800-171-3.5.8
+  - NIST-800-53-IA-5(1)(e)
+  - NIST-800-53-IA-5(f)
+  - PCI-DSS-Req-8.2.5
+  - accounts_password_pam_pwhistory_remember_system_auth
+  - configure_strategy
+  - low_complexity
+  - medium_disruption
+  - medium_severity
+  - no_reboot_needed
+
+- name: 'Limit Password Reuse: system-auth - Check the presence of /etc/security/pwhistory.conf file'
+  ansible.builtin.stat:
+    path: /etc/security/pwhistory.conf
+  register: result_pwhistory_conf_check
+  when:
+  - DISA_STIG_RHEL_07_010270 | bool
+  - accounts_password_pam_pwhistory_remember_system_auth | bool
+  - configure_strategy | bool
+  - low_complexity | bool
+  - medium_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - '"pam" in ansible_facts.packages'
+  tags:
+  - CCE-83479-6
+  - CJIS-5.6.2.1.1
+  - DISA-STIG-RHEL-07-010270
+  - NIST-800-171-3.5.8
+  - NIST-800-53-IA-5(1)(e)
+  - NIST-800-53-IA-5(f)
+  - PCI-DSS-Req-8.2.5
+  - accounts_password_pam_pwhistory_remember_system_auth
+  - configure_strategy
+  - low_complexity
+  - medium_disruption
+  - medium_severity
+  - no_reboot_needed
+
+- name: 'Limit Password Reuse: system-auth - pam_pwhistory.so parameters are configured in /etc/security/pwhistory.conf file'
+  block:
+  - name: 'Limit Password Reuse: system-auth - Ensure the pam_pwhistory.so remember parameter in /etc/security/pwhistory.conf'
+    ansible.builtin.lineinfile:
+      path: /etc/security/pwhistory.conf
+      regexp: ^\s*remember\s*=
+      line: remember = {{ var_password_pam_remember }}
+      state: present
+  - name: 'Limit Password Reuse: system-auth - Ensure the pam_pwhistory.so remember parameter is removed from PAM files'
+    block:
+    - name: 'Limit Password Reuse: system-auth - Check if /etc/pam.d/system-auth file is present'
+      ansible.builtin.stat:
+        path: /etc/pam.d/system-auth
+      register: result_pam_file_present
+    - name: 'Limit Password Reuse: system-auth - Check the proper remediation for the system'
+      block:
+      - name: 'Limit Password Reuse: system-auth - Define the PAM file to be edited as a local fact'
+        ansible.builtin.set_fact:
+          pam_file_path: /etc/pam.d/system-auth
+      - name: 'Limit Password Reuse: system-auth - Check if system relies on authselect tool'
+        ansible.builtin.stat:
+          path: /usr/bin/authselect
+        register: result_authselect_present
+      - name: 'Limit Password Reuse: system-auth - Ensure authselect custom profile is used if authselect is present'
+        block:
+        - name: 'Limit Password Reuse: system-auth - Check integrity of authselect current profile'
+          ansible.builtin.command:
+            cmd: authselect check
+          register: result_authselect_check_cmd
+          changed_when: false
+          ignore_errors: true
+        - name: 'Limit Password Reuse: system-auth - Informative message based on the authselect integrity check result'
+          ansible.builtin.assert:
+            that:
+            - result_authselect_check_cmd is success
+            fail_msg:
+            - authselect integrity check failed. Remediation aborted!
+            - This remediation could not be applied because an authselect profile was not selected or the selected profile
+              is not intact.
+            - It is not recommended to manually edit the PAM files when authselect tool is available.
+            - In cases where the default authselect profile does not cover a specific demand, a custom authselect profile
+              is recommended.
+            success_msg:
+            - authselect integrity check passed
+        - name: 'Limit Password Reuse: system-auth - Get authselect current profile'
+          ansible.builtin.shell:
+            cmd: authselect current -r | awk '{ print $1 }'
+          register: result_authselect_profile
+          changed_when: false
+          when:
+          - result_authselect_check_cmd is success
+        - name: 'Limit Password Reuse: system-auth - Define the current authselect profile as a local fact'
+          ansible.builtin.set_fact:
+            authselect_current_profile: '{{ result_authselect_profile.stdout }}'
+            authselect_custom_profile: '{{ result_authselect_profile.stdout }}'
+          when:
+          - result_authselect_profile is not skipped
+          - result_authselect_profile.stdout is match("custom/")
+        - name: 'Limit Password Reuse: system-auth - Define the new authselect custom profile as a local fact'
+          ansible.builtin.set_fact:
+            authselect_current_profile: '{{ result_authselect_profile.stdout }}'
+            authselect_custom_profile: custom/hardening
+          when:
+          - result_authselect_profile is not skipped
+          - result_authselect_profile.stdout is not match("custom/")
+        - name: 'Limit Password Reuse: system-auth - Get authselect current features to also enable them in the custom profile'
+          ansible.builtin.shell:
+            cmd: authselect current | tail -n+3 | awk '{ print $2 }'
+          register: result_authselect_features
+          changed_when: false
+          when:
+          - result_authselect_profile is not skipped
+          - authselect_current_profile is not match("custom/")
+        - name: 'Limit Password Reuse: system-auth - Check if any custom profile with the same name was already created'
+          ansible.builtin.stat:
+            path: /etc/authselect/{{ authselect_custom_profile }}
+          register: result_authselect_custom_profile_present
+          changed_when: false
+          when:
+          - authselect_current_profile is not match("custom/")
+        - name: 'Limit Password Reuse: system-auth - Create an authselect custom profile based on the current profile'
+          ansible.builtin.command:
+            cmd: authselect create-profile hardening -b {{ authselect_current_profile }}
+          when:
+          - result_authselect_check_cmd is success
+          - authselect_current_profile is not match("custom/")
+          - not result_authselect_custom_profile_present.stat.exists
+        - name: 'Limit Password Reuse: system-auth - Ensure authselect changes are applied'
+          ansible.builtin.command:
+            cmd: authselect apply-changes -b --backup=before-hardening-custom-profile
+          when:
+          - result_authselect_check_cmd is success
+          - result_authselect_profile is not skipped
+          - authselect_current_profile is not match("custom/")
+          - authselect_custom_profile is not match(authselect_current_profile)
+        - name: 'Limit Password Reuse: system-auth - Ensure the authselect custom profile is selected'
+          ansible.builtin.command:
+            cmd: authselect select {{ authselect_custom_profile }}
+          register: result_pam_authselect_select_profile
+          when:
+          - result_authselect_check_cmd is success
+          - result_authselect_profile is not skipped
+          - authselect_current_profile is not match("custom/")
+          - authselect_custom_profile is not match(authselect_current_profile)
+        - name: 'Limit Password Reuse: system-auth - Restore the authselect features in the custom profile'
+          ansible.builtin.command:
+            cmd: authselect enable-feature {{ item }}
+          loop: '{{ result_authselect_features.stdout_lines }}'
+          register: result_pam_authselect_restore_features
+          when:
+          - result_authselect_profile is not skipped
+          - result_authselect_features is not skipped
+          - result_pam_authselect_select_profile is not skipped
+        - name: 'Limit Password Reuse: system-auth - Ensure authselect changes are applied'
+          ansible.builtin.command:
+            cmd: authselect apply-changes -b --backup=after-hardening-custom-profile
+          when:
+          - result_authselect_check_cmd is success
+          - result_authselect_profile is not skipped
+          - result_pam_authselect_restore_features is not skipped
+        - name: 'Limit Password Reuse: system-auth - Change the PAM file to be edited according to the custom authselect profile'
+          ansible.builtin.set_fact:
+            pam_file_path: /etc/authselect/{{ authselect_custom_profile }}/{{ pam_file_path | basename }}
+        when:
+        - result_authselect_present.stat.exists
+      - name: 'Limit Password Reuse: system-auth - Ensure the "remember" option from "pam_pwhistory.so" is not present in
+          {{ pam_file_path }}'
+        ansible.builtin.replace:
+          dest: '{{ pam_file_path }}'
+          regexp: (.*password.*pam_pwhistory.so.*)\bremember\b=?[0-9a-zA-Z]*(.*)
+          replace: \1\2
+        register: result_pam_option_removal
+      - name: 'Limit Password Reuse: system-auth - Ensure authselect changes are applied'
+        ansible.builtin.command:
+          cmd: authselect apply-changes -b
+        when:
+        - result_authselect_present.stat.exists
+        - result_pam_option_removal is changed
+      when:
+      - result_pam_file_present.stat.exists
+  when:
+  - DISA_STIG_RHEL_07_010270 | bool
+  - accounts_password_pam_pwhistory_remember_system_auth | bool
+  - configure_strategy | bool
+  - low_complexity | bool
+  - medium_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - '"pam" in ansible_facts.packages'
+  - result_pwhistory_conf_check.stat.exists
+  tags:
+  - CCE-83479-6
+  - CJIS-5.6.2.1.1
+  - DISA-STIG-RHEL-07-010270
+  - NIST-800-171-3.5.8
+  - NIST-800-53-IA-5(1)(e)
+  - NIST-800-53-IA-5(f)
+  - PCI-DSS-Req-8.2.5
+  - accounts_password_pam_pwhistory_remember_system_auth
+  - configure_strategy
+  - low_complexity
+  - medium_disruption
+  - medium_severity
+  - no_reboot_needed
+
+- name: 'Limit Password Reuse: system-auth - pam_pwhistory.so parameters are configured in PAM files'
+  block:
+  - name: 'Limit Password Reuse: system-auth - Define the PAM file to be edited as a local fact'
+    ansible.builtin.set_fact:
+      pam_file_path: /etc/pam.d/system-auth
+  - name: 'Limit Password Reuse: system-auth - Check if system relies on authselect tool'
+    ansible.builtin.stat:
+      path: /usr/bin/authselect
+    register: result_authselect_present
+  - name: 'Limit Password Reuse: system-auth - Ensure authselect custom profile is used if authselect is present'
+    block:
+    - name: 'Limit Password Reuse: system-auth - Check integrity of authselect current profile'
+      ansible.builtin.command:
+        cmd: authselect check
+      register: result_authselect_check_cmd
+      changed_when: false
+      ignore_errors: true
+    - name: 'Limit Password Reuse: system-auth - Informative message based on the authselect integrity check result'
+      ansible.builtin.assert:
+        that:
+        - result_authselect_check_cmd is success
+        fail_msg:
+        - authselect integrity check failed. Remediation aborted!
+        - This remediation could not be applied because an authselect profile was not selected or the selected profile is
+          not intact.
+        - It is not recommended to manually edit the PAM files when authselect tool is available.
+        - In cases where the default authselect profile does not cover a specific demand, a custom authselect profile is recommended.
+        success_msg:
+        - authselect integrity check passed
+    - name: 'Limit Password Reuse: system-auth - Get authselect current profile'
+      ansible.builtin.shell:
+        cmd: authselect current -r | awk '{ print $1 }'
+      register: result_authselect_profile
+      changed_when: false
+      when:
+      - result_authselect_check_cmd is success
+    - name: 'Limit Password Reuse: system-auth - Define the current authselect profile as a local fact'
+      ansible.builtin.set_fact:
+        authselect_current_profile: '{{ result_authselect_profile.stdout }}'
+        authselect_custom_profile: '{{ result_authselect_profile.stdout }}'
+      when:
+      - result_authselect_profile is not skipped
+      - result_authselect_profile.stdout is match("custom/")
+    - name: 'Limit Password Reuse: system-auth - Define the new authselect custom profile as a local fact'
+      ansible.builtin.set_fact:
+        authselect_current_profile: '{{ result_authselect_profile.stdout }}'
+        authselect_custom_profile: custom/hardening
+      when:
+      - result_authselect_profile is not skipped
+      - result_authselect_profile.stdout is not match("custom/")
+    - name: 'Limit Password Reuse: system-auth - Get authselect current features to also enable them in the custom profile'
+      ansible.builtin.shell:
+        cmd: authselect current | tail -n+3 | awk '{ print $2 }'
+      register: result_authselect_features
+      changed_when: false
+      when:
+      - result_authselect_profile is not skipped
+      - authselect_current_profile is not match("custom/")
+    - name: 'Limit Password Reuse: system-auth - Check if any custom profile with the same name was already created'
+      ansible.builtin.stat:
+        path: /etc/authselect/{{ authselect_custom_profile }}
+      register: result_authselect_custom_profile_present
+      changed_when: false
+      when:
+      - authselect_current_profile is not match("custom/")
+    - name: 'Limit Password Reuse: system-auth - Create an authselect custom profile based on the current profile'
+      ansible.builtin.command:
+        cmd: authselect create-profile hardening -b {{ authselect_current_profile }}
+      when:
+      - result_authselect_check_cmd is success
+      - authselect_current_profile is not match("custom/")
+      - not result_authselect_custom_profile_present.stat.exists
+    - name: 'Limit Password Reuse: system-auth - Ensure authselect changes are applied'
+      ansible.builtin.command:
+        cmd: authselect apply-changes -b --backup=before-hardening-custom-profile
+      when:
+      - result_authselect_check_cmd is success
+      - result_authselect_profile is not skipped
+      - authselect_current_profile is not match("custom/")
+      - authselect_custom_profile is not match(authselect_current_profile)
+    - name: 'Limit Password Reuse: system-auth - Ensure the authselect custom profile is selected'
+      ansible.builtin.command:
+        cmd: authselect select {{ authselect_custom_profile }}
+      register: result_pam_authselect_select_profile
+      when:
+      - result_authselect_check_cmd is success
+      - result_authselect_profile is not skipped
+      - authselect_current_profile is not match("custom/")
+      - authselect_custom_profile is not match(authselect_current_profile)
+    - name: 'Limit Password Reuse: system-auth - Restore the authselect features in the custom profile'
+      ansible.builtin.command:
+        cmd: authselect enable-feature {{ item }}
+      loop: '{{ result_authselect_features.stdout_lines }}'
+      register: result_pam_authselect_restore_features
+      when:
+      - result_authselect_profile is not skipped
+      - result_authselect_features is not skipped
+      - result_pam_authselect_select_profile is not skipped
+    - name: 'Limit Password Reuse: system-auth - Ensure authselect changes are applied'
+      ansible.builtin.command:
+        cmd: authselect apply-changes -b --backup=after-hardening-custom-profile
+      when:
+      - result_authselect_check_cmd is success
+      - result_authselect_profile is not skipped
+      - result_pam_authselect_restore_features is not skipped
+    - name: 'Limit Password Reuse: system-auth - Change the PAM file to be edited according to the custom authselect profile'
+      ansible.builtin.set_fact:
+        pam_file_path: /etc/authselect/{{ authselect_custom_profile }}/{{ pam_file_path | basename }}
+    when:
+    - result_authselect_present.stat.exists
+  - name: 'Limit Password Reuse: system-auth - Check if expected PAM module line is present in {{ pam_file_path }}'
+    ansible.builtin.lineinfile:
+      path: '{{ pam_file_path }}'
+      regexp: ^\s*password\s+requisite\s+pam_pwhistory.so\s*.*
+      state: absent
+    check_mode: true
+    changed_when: false
+    register: result_pam_line_present
+  - name: 'Limit Password Reuse: system-auth - Include or update the PAM module line in {{ pam_file_path }}'
+    block:
+    - name: 'Limit Password Reuse: system-auth - Check if required PAM module line is present in {{ pam_file_path }} with
+        different control'
+      ansible.builtin.lineinfile:
+        path: '{{ pam_file_path }}'
+        regexp: ^\s*password\s+.*\s+pam_pwhistory.so\s*
+        state: absent
+      check_mode: true
+      changed_when: false
+      register: result_pam_line_other_control_present
+    - name: 'Limit Password Reuse: system-auth - Ensure the correct control for the required PAM module line in {{ pam_file_path
+        }}'
+      ansible.builtin.replace:
+        dest: '{{ pam_file_path }}'
+        regexp: ^(\s*password\s+).*(\bpam_pwhistory.so.*)
+        replace: \1requisite \2
+      register: result_pam_module_edit
+      when:
+      - result_pam_line_other_control_present.found == 1
+    - name: 'Limit Password Reuse: system-auth - Ensure the required PAM module line is included in {{ pam_file_path }}'
+      ansible.builtin.lineinfile:
+        dest: '{{ pam_file_path }}'
+        line: password    requisite    pam_pwhistory.so
+      register: result_pam_module_add
+      when:
+      - result_pam_line_other_control_present.found == 0 or result_pam_line_other_control_present.found > 1
+    - name: 'Limit Password Reuse: system-auth - Ensure authselect changes are applied'
+      ansible.builtin.command:
+        cmd: authselect apply-changes -b
+      when: 'result_authselect_present is defined and result_authselect_present.stat.exists and ((result_pam_module_add is
+        defined and result_pam_module_add.changed) or (result_pam_module_edit is defined and result_pam_module_edit.changed))
+
+        '
+    when:
+    - result_pam_line_present.found is defined
+    - result_pam_line_present.found == 0
   - name: 'Limit Password Reuse: system-auth - Check if the required PAM module option is present in {{ pam_file_path }}'
     ansible.builtin.lineinfile:
       path: '{{ pam_file_path }}'
-      regexp: ^\s*password\s+{{ var_password_pam_remember_control_flag.split(",")[0] }}\s+pam_pwhistory.so\s*.*\sremember\b
+      regexp: ^\s*password\s+requisite\s+pam_pwhistory.so\s*.*\sremember\b
       state: absent
     check_mode: true
     changed_when: false
@@ -1867,7 +2882,7 @@
     ansible.builtin.lineinfile:
       path: '{{ pam_file_path }}'
       backrefs: true
-      regexp: ^(\s*password\s+{{ var_password_pam_remember_control_flag.split(",")[0] }}\s+pam_pwhistory.so.*)
+      regexp: ^(\s*password\s+requisite\s+pam_pwhistory.so.*)
       line: \1 remember={{ var_password_pam_remember }}
       state: present
     register: result_pam_remember_add
@@ -1878,7 +2893,7 @@
     ansible.builtin.lineinfile:
       path: '{{ pam_file_path }}'
       backrefs: true
-      regexp: ^(\s*password\s+{{ var_password_pam_remember_control_flag.split(",")[0] }}\s+pam_pwhistory.so\s+.*)(remember)=[0-9a-zA-Z]+\s*(.*)
+      regexp: ^(\s*password\s+requisite\s+pam_pwhistory.so\s+.*)(remember)=[0-9a-zA-Z]+\s*(.*)
       line: \1\2={{ var_password_pam_remember }} \3
     register: result_pam_remember_edit
     when:
@@ -1899,7 +2914,7 @@
   - medium_severity | bool
   - no_reboot_needed | bool
   - '"pam" in ansible_facts.packages'
-  - result_pam_file_present.stat.exists
+  - not result_pwhistory_conf_check.stat.exists
   tags:
   - CCE-83479-6
   - CJIS-5.6.2.1.1
@@ -1940,8 +2955,8 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
 
-- name: Ensure PAM variable minclass is set accordingly
-  lineinfile:
+- name: Ensure PAM Enforces Password Requirements - Minimum Different Categories - Ensure PAM variable minclass is set accordingly
+  ansible.builtin.lineinfile:
     create: true
     dest: /etc/security/pwquality.conf
     regexp: ^#?\s*minclass
@@ -1996,8 +3011,8 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
 
-- name: Ensure PAM variable minlen is set accordingly
-  lineinfile:
+- name: Ensure PAM Enforces Password Requirements - Minimum Length - Ensure PAM variable minlen is set accordingly
+  ansible.builtin.lineinfile:
     create: true
     dest: /etc/security/pwquality.conf
     regexp: ^#?\s*minlen
@@ -2088,11 +3103,11 @@
   - name: Set PAM's Password Hashing Algorithm - Define the PAM file to be edited as a local fact
     ansible.builtin.set_fact:
       pam_file_path: /etc/pam.d/system-auth
-  - name: Set PAM's Password Hashing Algorithm - Check if system relies on authselect
+  - name: Set PAM's Password Hashing Algorithm - Check if system relies on authselect tool
     ansible.builtin.stat:
       path: /usr/bin/authselect
     register: result_authselect_present
-  - name: Set PAM's Password Hashing Algorithm - Remediate using authselect
+  - name: Set PAM's Password Hashing Algorithm - Ensure authselect custom profile is used if authselect is present
     block:
     - name: Set PAM's Password Hashing Algorithm - Check integrity of authselect current profile
       ansible.builtin.command:
@@ -2652,15 +3667,12 @@
   - restrict_strategy | bool
   - use_pam_wheel_for_su | bool
 
-- name: Check for duplicate values
-  lineinfile:
-    path: /etc/profile.d/tmout.sh
-    create: false
-    regexp: TMOUT=
-    state: absent
-  check_mode: true
-  changed_when: false
-  register: dupes
+- name: Correct any occurrence of TMOUT in /etc/bashrc
+  replace:
+    path: /etc/bashrc
+    regexp: ^[^#].*TMOUT=.*
+    replace: declare -xr TMOUT={{ var_accounts_tmout }}
+  register: bashrc_replaced
   when:
   - DISA_STIG_RHEL_07_040160 | bool
   - accounts_tmout | bool
@@ -2686,12 +3698,12 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Deduplicate values from /etc/profile.d/tmout.sh
-  lineinfile:
-    path: /etc/profile.d/tmout.sh
-    create: false
-    regexp: TMOUT=
-    state: absent
+- name: Correct any occurrence of TMOUT in /etc/profile
+  replace:
+    path: /etc/profile
+    regexp: ^[^#].*TMOUT=.*
+    replace: declare -xr TMOUT={{ var_accounts_tmout }}
+  register: profile_replaced
   when:
   - DISA_STIG_RHEL_07_040160 | bool
   - accounts_tmout | bool
@@ -2701,7 +3713,6 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - dupes.found is defined and dupes.found > 1
   tags:
   - CCE-27557-8
   - DISA-STIG-RHEL-07-040160
@@ -2718,7 +3729,7 @@
   - no_reboot_needed
   - restrict_strategy
 
-- name: Insert correct line into /etc/profile.d/tmout.sh
+- name: Set Interactive Session Timeout
   lineinfile:
     path: /etc/profile.d/tmout.sh
     create: true
@@ -2734,6 +3745,7 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - profile_replaced is defined and not profile_replaced.changed and bashrc_replaced is defined and not bashrc_replaced.changed
   tags:
   - CCE-27557-8
   - DISA-STIG-RHEL-07-040160
@@ -6226,6 +7238,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6269,6 +7282,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6305,6 +7319,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6340,6 +7355,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6375,6 +7391,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6411,6 +7428,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6446,6 +7464,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6483,6 +7502,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6518,6 +7538,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6554,6 +7575,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6589,6 +7611,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6624,6 +7647,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6660,6 +7684,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6695,6 +7720,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -6732,6 +7758,7 @@
   - NIST-800-53-AU-12(c)
   - NIST-800-53-AU-2(d)
   - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.2.1.5
   - PCI-DSS-Req-10.2.2
   - PCI-DSS-Req-10.2.5.b
   - audit_rules_sysadmin_actions
@@ -18278,6 +19305,291 @@
   package_facts:
     manager: auto
   tags:
+  - CCE-27219-5
+  - CJIS-5.4.1.1
+  - NIST-800-171-3.1.7
+  - NIST-800-53-AC-6(9)
+  - NIST-800-53-AU-12(c)
+  - NIST-800-53-AU-2(d)
+  - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.4.2.b
+  - audit_rules_time_clock_settime
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+  when:
+  - audit_rules_time_clock_settime | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+
+- name: Set architecture for audit tasks
+  set_fact:
+    audit_arch: b64
+  when:
+  - audit_rules_time_clock_settime | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - '"audit" in ansible_facts.packages'
+  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - ansible_architecture == "aarch64" or ansible_architecture == "ppc64" or ansible_architecture == "ppc64le" or ansible_architecture
+    == "s390x" or ansible_architecture == "x86_64"
+  tags:
+  - CCE-27219-5
+  - CJIS-5.4.1.1
+  - NIST-800-171-3.1.7
+  - NIST-800-53-AC-6(9)
+  - NIST-800-53-AU-12(c)
+  - NIST-800-53-AU-2(d)
+  - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.4.2.b
+  - audit_rules_time_clock_settime
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+
+- name: Perform remediation of Audit rules for clock_settime for 32bit platform
+  block:
+  - name: Declare list of syscalls
+    set_fact:
+      syscalls:
+      - clock_settime
+      syscall_grouping: []
+  - name: Check existence of clock_settime in /etc/audit/rules.d/
+    find:
+      paths: /etc/audit/rules.d
+      contains: -a always,exit -F arch=b32(( -S |,)\w+)*(( -S |,){{ item }})+(( -S |,)\w+)* -F a0=0x0 (-k\s+|-F\s+key=)\S+\s*$
+      patterns: '*.rules'
+    register: find_command
+    loop: '{{ (syscall_grouping + syscalls) | unique }}'
+  - name: Reset syscalls found per file
+    set_fact:
+      syscalls_per_file: {}
+      found_paths_dict: {}
+  - name: Declare syscalls found per file
+    set_fact: syscalls_per_file="{{ syscalls_per_file | combine( {item.files[0].path :[item.item] + syscalls_per_file.get(item.files[0].path,
+      []) } ) }}"
+    loop: '{{ find_command.results | selectattr(''matched'') | list }}'
+  - name: Declare files where syscalls were found
+    set_fact: found_paths="{{ find_command.results | map(attribute='files') | flatten | map(attribute='path') | list }}"
+  - name: Count occurrences of syscalls in paths
+    set_fact: found_paths_dict="{{ found_paths_dict | combine({ item:1+found_paths_dict.get(item, 0) }) }}"
+    loop: '{{ find_command.results | map(attribute=''files'') | flatten | map(attribute=''path'') | list }}'
+  - name: Get path with most syscalls
+    set_fact: audit_file="{{ (found_paths_dict | dict2items() | sort(attribute='value') | last).key }}"
+    when: found_paths | length >= 1
+  - name: No file with syscall found, set path to /etc/audit/rules.d/time-change.rules
+    set_fact: audit_file="/etc/audit/rules.d/time-change.rules"
+    when: found_paths | length == 0
+  - name: Declare found syscalls
+    set_fact: syscalls_found="{{ find_command.results | selectattr('matched') | map(attribute='item') | list }}"
+  - name: Declare missing syscalls
+    set_fact: missing_syscalls="{{ syscalls | difference(syscalls_found) }}"
+  - name: Replace the audit rule in {{ audit_file }}
+    lineinfile:
+      path: '{{ audit_file }}'
+      regexp: (-a always,exit -F arch=b32)(?=.*(?:(?:-S |,)(?:{{ syscalls_per_file[audit_file] | join("|") }}))\b)((?:( -S
+        |,)\w+)+)( -F a0=0x0 (?:-k |-F key=)\w+)
+      line: \1\2\3{{ missing_syscalls | join("\3") }}\4
+      backrefs: true
+      state: present
+    when: syscalls_found | length > 0 and missing_syscalls | length > 0
+  - name: Add the audit rule to {{ audit_file }}
+    lineinfile:
+      path: '{{ audit_file }}'
+      line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F a0=0x0 -F key=time-change
+      create: true
+      mode: o-rwx
+      state: present
+    when: syscalls_found | length == 0
+  - name: Declare list of syscalls
+    set_fact:
+      syscalls:
+      - clock_settime
+      syscall_grouping: []
+  - name: Check existence of clock_settime in /etc/audit/audit.rules
+    find:
+      paths: /etc/audit
+      contains: -a always,exit -F arch=b32(( -S |,)\w+)*(( -S |,){{ item }})+(( -S |,)\w+)* -F a0=0x0 (-k\s+|-F\s+key=)\S+\s*$
+      patterns: audit.rules
+    register: find_command
+    loop: '{{ (syscall_grouping + syscalls) | unique }}'
+  - name: Set path to /etc/audit/audit.rules
+    set_fact: audit_file="/etc/audit/audit.rules"
+  - name: Declare found syscalls
+    set_fact: syscalls_found="{{ find_command.results | selectattr('matched') | map(attribute='item') | list }}"
+  - name: Declare missing syscalls
+    set_fact: missing_syscalls="{{ syscalls | difference(syscalls_found) }}"
+  - name: Replace the audit rule in {{ audit_file }}
+    lineinfile:
+      path: '{{ audit_file }}'
+      regexp: (-a always,exit -F arch=b32)(?=.*(?:(?:-S |,)(?:{{ syscalls_found | join("|") }}))\b)((?:( -S |,)\w+)+)( -F
+        a0=0x0 (?:-k |-F key=)\w+)
+      line: \1\2\3{{ missing_syscalls | join("\3") }}\4
+      backrefs: true
+      state: present
+    when: syscalls_found | length > 0 and missing_syscalls | length > 0
+  - name: Add the audit rule to {{ audit_file }}
+    lineinfile:
+      path: '{{ audit_file }}'
+      line: -a always,exit -F arch=b32 -S {{ syscalls | join(',') }} -F a0=0x0 -F key=time-change
+      create: true
+      mode: o-rwx
+      state: present
+    when: syscalls_found | length == 0
+  when:
+  - audit_rules_time_clock_settime | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - '"audit" in ansible_facts.packages'
+  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  tags:
+  - CCE-27219-5
+  - CJIS-5.4.1.1
+  - NIST-800-171-3.1.7
+  - NIST-800-53-AC-6(9)
+  - NIST-800-53-AU-12(c)
+  - NIST-800-53-AU-2(d)
+  - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.4.2.b
+  - audit_rules_time_clock_settime
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+
+- name: Perform remediation of Audit rules for clock_settime for 64bit platform
+  block:
+  - name: Declare list of syscalls
+    set_fact:
+      syscalls:
+      - clock_settime
+      syscall_grouping: []
+  - name: Check existence of clock_settime in /etc/audit/rules.d/
+    find:
+      paths: /etc/audit/rules.d
+      contains: -a always,exit -F arch=b64(( -S |,)\w+)*(( -S |,){{ item }})+(( -S |,)\w+)* -F a0=0x0 (-k\s+|-F\s+key=)\S+\s*$
+      patterns: '*.rules'
+    register: find_command
+    loop: '{{ (syscall_grouping + syscalls) | unique }}'
+  - name: Reset syscalls found per file
+    set_fact:
+      syscalls_per_file: {}
+      found_paths_dict: {}
+  - name: Declare syscalls found per file
+    set_fact: syscalls_per_file="{{ syscalls_per_file | combine( {item.files[0].path :[item.item] + syscalls_per_file.get(item.files[0].path,
+      []) } ) }}"
+    loop: '{{ find_command.results | selectattr(''matched'') | list }}'
+  - name: Declare files where syscalls were found
+    set_fact: found_paths="{{ find_command.results | map(attribute='files') | flatten | map(attribute='path') | list }}"
+  - name: Count occurrences of syscalls in paths
+    set_fact: found_paths_dict="{{ found_paths_dict | combine({ item:1+found_paths_dict.get(item, 0) }) }}"
+    loop: '{{ find_command.results | map(attribute=''files'') | flatten | map(attribute=''path'') | list }}'
+  - name: Get path with most syscalls
+    set_fact: audit_file="{{ (found_paths_dict | dict2items() | sort(attribute='value') | last).key }}"
+    when: found_paths | length >= 1
+  - name: No file with syscall found, set path to /etc/audit/rules.d/time-change.rules
+    set_fact: audit_file="/etc/audit/rules.d/time-change.rules"
+    when: found_paths | length == 0
+  - name: Declare found syscalls
+    set_fact: syscalls_found="{{ find_command.results | selectattr('matched') | map(attribute='item') | list }}"
+  - name: Declare missing syscalls
+    set_fact: missing_syscalls="{{ syscalls | difference(syscalls_found) }}"
+  - name: Replace the audit rule in {{ audit_file }}
+    lineinfile:
+      path: '{{ audit_file }}'
+      regexp: (-a always,exit -F arch=b64)(?=.*(?:(?:-S |,)(?:{{ syscalls_per_file[audit_file] | join("|") }}))\b)((?:( -S
+        |,)\w+)+)( -F a0=0x0 (?:-k |-F key=)\w+)
+      line: \1\2\3{{ missing_syscalls | join("\3") }}\4
+      backrefs: true
+      state: present
+    when: syscalls_found | length > 0 and missing_syscalls | length > 0
+  - name: Add the audit rule to {{ audit_file }}
+    lineinfile:
+      path: '{{ audit_file }}'
+      line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F a0=0x0 -F key=time-change
+      create: true
+      mode: o-rwx
+      state: present
+    when: syscalls_found | length == 0
+  - name: Declare list of syscalls
+    set_fact:
+      syscalls:
+      - clock_settime
+      syscall_grouping: []
+  - name: Check existence of clock_settime in /etc/audit/audit.rules
+    find:
+      paths: /etc/audit
+      contains: -a always,exit -F arch=b64(( -S |,)\w+)*(( -S |,){{ item }})+(( -S |,)\w+)* -F a0=0x0 (-k\s+|-F\s+key=)\S+\s*$
+      patterns: audit.rules
+    register: find_command
+    loop: '{{ (syscall_grouping + syscalls) | unique }}'
+  - name: Set path to /etc/audit/audit.rules
+    set_fact: audit_file="/etc/audit/audit.rules"
+  - name: Declare found syscalls
+    set_fact: syscalls_found="{{ find_command.results | selectattr('matched') | map(attribute='item') | list }}"
+  - name: Declare missing syscalls
+    set_fact: missing_syscalls="{{ syscalls | difference(syscalls_found) }}"
+  - name: Replace the audit rule in {{ audit_file }}
+    lineinfile:
+      path: '{{ audit_file }}'
+      regexp: (-a always,exit -F arch=b64)(?=.*(?:(?:-S |,)(?:{{ syscalls_found | join("|") }}))\b)((?:( -S |,)\w+)+)( -F
+        a0=0x0 (?:-k |-F key=)\w+)
+      line: \1\2\3{{ missing_syscalls | join("\3") }}\4
+      backrefs: true
+      state: present
+    when: syscalls_found | length > 0 and missing_syscalls | length > 0
+  - name: Add the audit rule to {{ audit_file }}
+    lineinfile:
+      path: '{{ audit_file }}'
+      line: -a always,exit -F arch=b64 -S {{ syscalls | join(',') }} -F a0=0x0 -F key=time-change
+      create: true
+      mode: o-rwx
+      state: present
+    when: syscalls_found | length == 0
+  when:
+  - audit_rules_time_clock_settime | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - medium_severity | bool
+  - no_reboot_needed | bool
+  - restrict_strategy | bool
+  - '"audit" in ansible_facts.packages'
+  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
+  - audit_arch == "b64"
+  tags:
+  - CCE-27219-5
+  - CJIS-5.4.1.1
+  - NIST-800-171-3.1.7
+  - NIST-800-53-AC-6(9)
+  - NIST-800-53-AU-12(c)
+  - NIST-800-53-AU-2(d)
+  - NIST-800-53-CM-6(a)
+  - PCI-DSS-Req-10.4.2.b
+  - audit_rules_time_clock_settime
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - restrict_strategy
+
+- name: Gather the package facts
+  package_facts:
+    manager: auto
+  tags:
   - CCE-27216-1
   - CJIS-5.4.1.1
   - NIST-800-171-3.1.7
@@ -19294,8 +20606,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-82023-3
@@ -19322,8 +20634,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -19375,8 +20687,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-86008-0
@@ -19403,8 +20715,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -19456,8 +20768,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-82026-6
@@ -19484,8 +20796,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -19537,8 +20849,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-86014-8
@@ -19565,8 +20877,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -19616,8 +20928,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-82039-9
@@ -19642,8 +20954,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -19691,8 +21003,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-86023-9
@@ -19717,8 +21029,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" not in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -19768,8 +21080,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83430-9
@@ -19796,8 +21108,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -19849,8 +21161,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-86011-4
@@ -19877,8 +21189,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -19930,8 +21242,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83429-1
@@ -19958,8 +21270,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -20011,8 +21323,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-86019-7
@@ -20039,8 +21351,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -20090,8 +21402,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-83431-7
@@ -20116,8 +21428,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -20165,8 +21477,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   tags:
   - CCE-86026-2
@@ -20191,8 +21503,8 @@
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - '"grub2-common" in ansible_facts.packages'
   - '"/boot/efi" in ansible_mounts | map(attribute="mount") | list'
+  - '"grub2-common" in ansible_facts.packages'
   - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
   - file_exists.stat is defined and file_exists.stat.exists
   tags:
@@ -22791,9 +24103,12 @@
   - unknown_strategy | bool
   - wireless_disable_interfaces | bool
 
-- name: Check if NetworkManager is installed
-  ansible.builtin.package_facts:
-    manager: auto
+- name: Ensure NetworkManager is installed
+  ansible.builtin.package:
+    name: '{{ item }}'
+    state: present
+  with_items:
+  - NetworkManager
   tags:
   - CCE-27358-1
   - DISA-STIG-RHEL-07-041010
@@ -22819,36 +24134,6 @@
   - no_reboot_needed | bool
   - unknown_strategy | bool
   - wireless_disable_interfaces | bool
-
-- name: Error message when NetworkManager not installed
-  fail:
-    msg: NetworkManager package not installed
-  when:
-  - DISA_STIG_RHEL_07_041010 | bool
-  - low_complexity | bool
-  - medium_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - unknown_strategy | bool
-  - wireless_disable_interfaces | bool
-  - '''NetworkManager'' not in ansible_facts.packages'
-  tags:
-  - CCE-27358-1
-  - DISA-STIG-RHEL-07-041010
-  - NIST-800-171-3.1.16
-  - NIST-800-53-AC-18(3)
-  - NIST-800-53-AC-18(a)
-  - NIST-800-53-CM-6(a)
-  - NIST-800-53-CM-7(a)
-  - NIST-800-53-CM-7(b)
-  - NIST-800-53-MP-7
-  - PCI-DSS-Req-1.3.3
-  - low_complexity
-  - medium_disruption
-  - medium_severity
-  - no_reboot_needed
-  - unknown_strategy
-  - wireless_disable_interfaces
 
 - name: Deactivate Wireless Network Interfaces
   command: nmcli radio wifi off
@@ -28110,78 +29395,25 @@
   - no_reboot_needed
   - ntpd_specify_remote_server
 
-- name: Disable service rsyncd
-  block:
-  - name: Disable service rsyncd
-    systemd:
-      name: rsyncd.service
-      enabled: 'no'
-      state: stopped
-      masked: 'yes'
-    ignore_errors: 'yes'
+- name: Ensure rsync is removed
+  package:
+    name: rsync
+    state: absent
+  tags:
+  - CCE-86334-0
+  - disable_strategy
+  - low_complexity
+  - low_disruption
+  - medium_severity
+  - no_reboot_needed
+  - package_rsync_removed
   when:
   - disable_strategy | bool
   - low_complexity | bool
   - low_disruption | bool
   - medium_severity | bool
   - no_reboot_needed | bool
-  - service_rsyncd_disabled | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  tags:
-  - CCE-83334-3
-  - disable_strategy
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-  - service_rsyncd_disabled
-
-- name: Unit Socket Exists - rsyncd.socket
-  command: systemctl list-unit-files rsyncd.socket
-  register: socket_file_exists
-  changed_when: false
-  ignore_errors: true
-  check_mode: false
-  when:
-  - disable_strategy | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - service_rsyncd_disabled | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  tags:
-  - CCE-83334-3
-  - disable_strategy
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-  - service_rsyncd_disabled
-
-- name: Disable socket rsyncd
-  systemd:
-    name: rsyncd.socket
-    enabled: 'no'
-    state: stopped
-    masked: 'yes'
-  when:
-  - disable_strategy | bool
-  - low_complexity | bool
-  - low_disruption | bool
-  - medium_severity | bool
-  - no_reboot_needed | bool
-  - service_rsyncd_disabled | bool
-  - ansible_virtualization_type not in ["docker", "lxc", "openvz", "podman", "container"]
-  - '"rsyncd.socket" in socket_file_exists.stdout_lines[1]'
-  tags:
-  - CCE-83334-3
-  - disable_strategy
-  - low_complexity
-  - low_disruption
-  - medium_severity
-  - no_reboot_needed
-  - service_rsyncd_disabled
+  - package_rsync_removed | bool
 
 - name: Ensure xinetd is removed
   package:
@@ -28382,6 +29614,29 @@
   - low_severity | bool
   - no_reboot_needed | bool
   - package_telnet_removed | bool
+
+- name: Ensure cups is removed
+  package:
+    name: cups
+    state: absent
+  tags:
+  - CCE-86295-3
+  - NIST-800-53-CM-6(a)
+  - NIST-800-53-CM-7(a)
+  - NIST-800-53-CM-7(b)
+  - disable_strategy
+  - low_complexity
+  - low_disruption
+  - no_reboot_needed
+  - package_cups_removed
+  - unknown_severity
+  when:
+  - disable_strategy | bool
+  - low_complexity | bool
+  - low_disruption | bool
+  - no_reboot_needed | bool
+  - package_cups_removed | bool
+  - unknown_severity | bool
 
 - name: Ensure squid is removed
   package:
