@@ -6,6 +6,7 @@ var_password_pam_remember: '5'
 var_password_pam_remember_control_flag: requisite
 var_password_pam_minclass: '4'
 var_password_pam_minlen: '14'
+var_password_hashing_algorithm: SHA512
 var_account_disable_post_pw_expiration: '30'
 var_accounts_maximum_age_login_defs: '365'
 var_accounts_minimum_age_login_defs: '1'
@@ -56,6 +57,7 @@ DISA_STIG_RHEL_07_010040: true
 DISA_STIG_RHEL_07_010050: true
 DISA_STIG_RHEL_07_010170: true
 DISA_STIG_RHEL_07_010200: true
+DISA_STIG_RHEL_07_010210: true
 DISA_STIG_RHEL_07_010230: true
 DISA_STIG_RHEL_07_010250: true
 DISA_STIG_RHEL_07_010270: true
@@ -134,8 +136,10 @@ accounts_password_pam_minclass: true
 accounts_password_pam_minlen: true
 accounts_password_pam_pwhistory_remember_password_auth: true
 accounts_password_pam_pwhistory_remember_system_auth: true
+accounts_password_set_warn_age_existing: true
 accounts_password_warn_age_login_defs: true
 accounts_root_path_dirs_no_write: true
+accounts_set_post_pw_existing: true
 accounts_tmout: true
 accounts_umask_etc_bashrc: true
 accounts_umask_etc_login_defs: true
@@ -166,6 +170,7 @@ audit_rules_kernel_module_loading_init: true
 audit_rules_login_events_faillock: true
 audit_rules_login_events_lastlog: true
 audit_rules_mac_modification: true
+audit_rules_mac_modification_usr_share: true
 audit_rules_media_export: true
 audit_rules_networkconfig_modification: true
 audit_rules_privileged_commands_insmod: true
@@ -318,6 +323,7 @@ mount_option_tmp_nosuid: true
 mount_option_var_tmp_nodev: true
 mount_option_var_tmp_noexec: true
 mount_option_var_tmp_nosuid: true
+no_empty_passwords_etc_shadow: true
 no_reboot_needed: true
 no_rsh_trust_files: true
 ntpd_configure_restrictions: true
@@ -325,6 +331,8 @@ ntpd_run_as_ntp_user: true
 ntpd_specify_remote_server: true
 package_aide_installed: true
 package_audit_installed: true
+package_avahi_autoipd_removed: true
+package_avahi_removed: true
 package_bind_removed: true
 package_cups_removed: true
 package_dhcp_removed: true
@@ -358,17 +366,20 @@ reboot_required: true
 require_emergency_target_auth: true
 require_singleuser_auth: true
 restrict_strategy: true
+rsyslog_filecreatemode: true
+rsyslog_files_permissions: true
 rsyslog_remote_loghost: true
 selinux_policytype: true
 selinux_state: true
 service_auditd_enabled: true
 service_autofs_disabled: true
-service_avahi_daemon_disabled: true
 service_crond_enabled: true
 service_firewalld_enabled: true
 service_ntpd_enabled: true
 service_rpcbind_disabled: true
 service_rsyslog_enabled: true
+set_password_hashing_algorithm_logindefs: true
+set_password_hashing_algorithm_passwordauth: true
 set_password_hashing_algorithm_systemauth: true
 sshd_disable_empty_passwords: true
 sshd_disable_rhosts: true
@@ -377,6 +388,7 @@ sshd_disable_tcp_forwarding: true
 sshd_disable_x11_forwarding: true
 sshd_do_not_permit_user_env: true
 sshd_enable_pam: true
+sshd_enable_warning_banner_net: true
 sshd_set_idle_timeout: true
 sshd_set_keepalive: true
 sshd_set_login_grace_time: true
