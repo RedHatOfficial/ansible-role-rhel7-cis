@@ -2,6 +2,8 @@
 # defaults file for rhel7_cis
 var_sudo_logfile: /var/log/sudo.log
 login_banner_text: ^(Authorized[\s\n]+uses[\s\n]+only\.[\s\n]+All[\s\n]+activity[\s\n]+may[\s\n]+be[\s\n]+monitored[\s\n]+and[\s\n]+reported\.|^(?!.*(\\|fedora|rhel|sle|ubuntu)).*)$
+remote_login_banner_text: ^(Authorized[\s\n]+uses[\s\n]+only\.[\s\n]+All[\s\n]+activity[\s\n]+may[\s\n]+be[\s\n]+monitored[\s\n]+and[\s\n]+reported\.|^(?!.*(\\|fedora|rhel|sle|ubuntu)).*)$
+motd_banner_text: ^(Authorized[\s\n]+uses[\s\n]+only\.[\s\n]+All[\s\n]+activity[\s\n]+may[\s\n]+be[\s\n]+monitored[\s\n]+and[\s\n]+reported\.|^(?!.*(\\|fedora|rhel|sle|ubuntu)).*)$
 var_password_pam_remember: '5'
 var_password_pam_remember_control_flag: requisite
 var_password_pam_minclass: '4'
@@ -52,6 +54,7 @@ var_sshd_max_sessions: '10'
 var_sshd_set_maxstartups: 10:30:60
 sshd_approved_ciphers: chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes256-ctr,aes128-gcm@openssh.com,aes256-gcm@openssh.com,aes128-cbc,aes192-cbc,aes256-cbc,blowfish-cbc,cast128-cbc,3des-cbc
 sshd_approved_macs: umac-64-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,hmac-sha1-etm@openssh.com,umac-64@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512,hmac-sha1,hmac-sha1-etm@openssh.com
+sshd_strong_kex: curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group-exchange-sha256
 DISA_STIG_RHEL_07_010030: true
 DISA_STIG_RHEL_07_010040: true
 DISA_STIG_RHEL_07_010050: true
@@ -112,6 +115,7 @@ DISA_STIG_RHEL_07_040320: true
 DISA_STIG_RHEL_07_040350: true
 DISA_STIG_RHEL_07_040370: true
 DISA_STIG_RHEL_07_040410: true
+DISA_STIG_RHEL_07_040420: true
 DISA_STIG_RHEL_07_040520: true
 DISA_STIG_RHEL_07_040610: true
 DISA_STIG_RHEL_07_040611: true
@@ -173,6 +177,7 @@ audit_rules_mac_modification: true
 audit_rules_mac_modification_usr_share: true
 audit_rules_media_export: true
 audit_rules_networkconfig_modification: true
+audit_rules_privileged_commands: true
 audit_rules_privileged_commands_insmod: true
 audit_rules_privileged_commands_modprobe: true
 audit_rules_privileged_commands_rmmod: true
@@ -265,6 +270,8 @@ file_owner_grub2_cfg: true
 file_owner_sshd_config: true
 file_owner_user_cfg: true
 file_ownership_home_directories: true
+file_ownership_sshd_private_key: true
+file_ownership_sshd_pub_key: true
 file_permissions_backup_etc_group: true
 file_permissions_backup_etc_gshadow: true
 file_permissions_backup_etc_passwd: true
@@ -288,6 +295,7 @@ file_permissions_etc_shadow: true
 file_permissions_grub2_cfg: true
 file_permissions_home_directories: true
 file_permissions_sshd_config: true
+file_permissions_sshd_private_key: true
 file_permissions_sshd_pub_key: true
 file_permissions_user_cfg: true
 gnome_gdm_disable_xdmcp: true
@@ -326,6 +334,7 @@ mount_option_var_tmp_nosuid: true
 no_empty_passwords_etc_shadow: true
 no_reboot_needed: true
 no_rsh_trust_files: true
+no_shelllogin_for_systemaccounts: true
 ntpd_configure_restrictions: true
 ntpd_run_as_ntp_user: true
 ntpd_specify_remote_server: true
@@ -398,6 +407,7 @@ sshd_set_max_sessions: true
 sshd_set_maxstartups: true
 sshd_use_approved_ciphers: true
 sshd_use_approved_macs: true
+sshd_use_strong_kex: true
 sudo_add_use_pty: true
 sudo_custom_logfile: true
 sysctl_fs_suid_dumpable: true
